@@ -12,15 +12,14 @@ const BoxesCore = ({ className, ...rest }: BackgroundBoxesProps) => {
   const rows = new Array(75).fill(1);
   const cols = new Array(50).fill(1);
   const colors = [
-    "#93c5fd",
-    "#f9a8d4",
-    "#86efac",
-    "#fde047",
-    "#fca5a5",
-    "#d8b4fe",
-    "#93c5fd",
-    "#a5b4fc",
-    "#c4b5fd",
+    "#ffffff",
+    "#f5f5f5",
+    "#e5e5e5",
+    "#d4d4d4",
+    "#a3a3a3",
+    "#fafafa",
+    "#f0f0f0",
+    "#e0e0e0",
   ];
 
   const getRandomColor = () => {
@@ -41,7 +40,7 @@ const BoxesCore = ({ className, ...rest }: BackgroundBoxesProps) => {
       {rows.map((_, i) => (
         <motion.div
           key={`row-${i}`}
-          className="relative h-16 w-32 border-l border-slate-700"
+          className="relative h-16 w-32 border-l border-border"
         >
           {cols.map((_, j) => (
             <motion.div
@@ -53,7 +52,7 @@ const BoxesCore = ({ className, ...rest }: BackgroundBoxesProps) => {
                 transition: { duration: 2 },
               }}
               key={`col-${j}`}
-              className="relative h-16 w-32 border-t border-r border-slate-700"
+              className="relative h-16 w-32 border-t border-r border-border"
             />
           ))}
         </motion.div>

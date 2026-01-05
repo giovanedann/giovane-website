@@ -4,13 +4,11 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { BackgroundBoxes } from "@/components/aceternity/background-boxes";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-slate-900">
-      {/* Gradient mask overlay */}
-      <div className="pointer-events-none absolute inset-0 z-20 h-full w-full bg-slate-900 [mask-image:radial-gradient(transparent,white)]" />
+    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0 z-20 h-full w-full bg-background [mask-image:radial-gradient(transparent,white)]" />
 
       <BackgroundBoxes />
 
@@ -19,10 +17,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={cn(
-            "text-5xl font-bold text-white md:text-7xl",
-            "bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent"
-          )}
+          className="text-5xl font-bold text-foreground md:text-7xl"
         >
           Giovane Saes
         </motion.h1>
@@ -31,7 +26,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-lg text-neutral-300 md:text-xl"
+          className="text-xl font-medium text-muted-foreground md:text-2xl"
         >
           Software & AI Engineer
         </motion.p>
@@ -46,7 +41,7 @@ export default function Home() {
             <Button
               variant="outline"
               size="lg"
-              className="w-full min-w-[200px] border-slate-600 bg-slate-800/50 text-white backdrop-blur-sm hover:border-slate-500 hover:bg-slate-700/50 hover:text-white"
+              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
             >
               I am an engineer
             </Button>
@@ -56,7 +51,7 @@ export default function Home() {
             <Button
               variant="outline"
               size="lg"
-              className="w-full min-w-[200px] border-slate-600 bg-slate-800/50 text-white backdrop-blur-sm hover:border-slate-500 hover:bg-slate-700/50 hover:text-white"
+              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
             >
               I am a recruiter
             </Button>
@@ -66,7 +61,7 @@ export default function Home() {
             <Button
               variant="outline"
               size="lg"
-              className="w-full min-w-[200px] border-slate-600 bg-slate-800/50 text-white backdrop-blur-sm hover:border-slate-500 hover:bg-slate-700/50 hover:text-white"
+              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
             >
               I am a wanderer
             </Button>
