@@ -1,0 +1,11 @@
+{
+  "project": {
+    "name": "Giovane's Personal Website",
+    "type": "next-js"
+  },
+  "preferences": {
+    "packageManager": "pnpm",
+    "testFramework": "vitest",
+    "styleFramework": "tailwind"
+  }
+}
