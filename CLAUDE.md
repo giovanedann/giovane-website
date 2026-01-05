@@ -4,6 +4,8 @@
 
 **IMPORTANT**: When generating code for this project, ALWAYS use the `context7` MCP tool first to fetch up-to-date documentation for the libraries being used (Next.js, shadcn/ui, Aceternity UI, Tailwind, Framer Motion, etc.). This ensures code follows current best practices and API patterns.
 
+**IMPORTANT**: DO NOT add comments unless they are explaining some explicit behavior about the code that can't be explained with the code itself. The code should be enough for explaining what it does. You should not write any useful comments like "Buttons", "BackgroundBoxes", just to tell you're instantiating or using something.
+
 ## Project Overview
 
 A personal website with three distinct user journeys:
@@ -126,9 +128,9 @@ import { motion } from "framer-motion";
 
 ### Phase 1: Foundation + Landing Page
 
-- [ ] Create landing page with 3 journey buttons
-- [ ] Set up basic layout and navigation
-- [ ] Configure SEO metadata
+- [x] Create landing page with 3 journey buttons
+- [x] Set up basic layout and navigation
+- [x] Configure SEO metadata
 
 ### Phase 2: Blog System
 
