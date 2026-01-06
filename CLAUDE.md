@@ -134,17 +134,18 @@ import { motion } from "framer-motion";
 
 ### Phase 2: Blog System
 
-- [ ] Set up MDX processing with next-mdx-remote or @next/mdx
-- [ ] Create blog post template and frontmatter schema
-- [ ] Implement blog list page with search/filtering
-- [ ] Implement individual post page with:
-  - Syntax highlighting (shiki or rehype-prism)
-  - Table of contents
+- [x] Set up MDX processing with next-mdx-remote
+- [x] Create blog post template and frontmatter schema
+- [x] Implement blog list page with expandable cards
+- [x] Implement individual post page with:
   - Reading time estimate
   - Image optimization
+- [ ] Add syntax highlighting with Shiki
+- [ ] Add table of contents
 - [ ] Add Giscus comments
 - [ ] Implement RSS feed
 - [ ] Add sitemap generation
+- [ ] Add search/filtering
 
 ### Phase 3: Portfolio/About Page
 
@@ -185,7 +186,8 @@ import { motion } from "framer-motion";
 ```yaml
 ---
 title: "Post Title"
-description: "Brief description for SEO and previews"
+short_description: "1-2 sentences for card preview"
+long_description: "Introductory paragraph shown when card expands"
 date: "2024-01-15"
 updated: "2024-01-20" # Optional
 tags: ["react", "typescript", "tutorial"]
