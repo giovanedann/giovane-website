@@ -43,10 +43,9 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8 text-lg leading-relaxed text-muted-foreground"
         >
-          I'm a Software Engineer passionate about building scalable systems and
-          developer experiences. With a background spanning IoT platforms, integrations,
-          and full-stack development, I thrive on tackling complex technical challenges
-          and delivering impactful solutions.
+          I'm a Product Engineer who loves building things end-to-end. From crafting
+          intuitive interfaces to architecting distributed systems, I thrive on the full
+          product cycle—shipping solutions that solve real problems and scale.
         </motion.p>
 
         <motion.p
@@ -56,10 +55,24 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-4 text-lg leading-relaxed text-muted-foreground"
         >
-          My Mechanical Engineering background gives me a unique perspective on
-          problem-solving, combining analytical thinking with software craftsmanship.
-          I'm particularly excited about AI-assisted development and teaching teams
-          how to leverage AI tools effectively.
+          I thrive on complex challenges. What brought me to programming was automating
+          Excel spreadsheets—first with formulas, then with VBA. My Mechanical Engineering
+          background, especially the physics and math, didn't lead me here, but it made me
+          better at it. Calculating air resistance or modeling systems taught me to break
+          down problems logically—a skill I apply to every technical challenge today.
+        </motion.p>
+
+        <motion.p
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mt-4 text-lg leading-relaxed text-muted-foreground"
+        >
+          I'm passionate about developer experience, scalable architecture, and using
+          AI to multiply my impact. I also love writing and sharing what I learn—because
+          building great products is only half the fun if you can't communicate why
+          they matter.
         </motion.p>
       </motion.div>
     </section>
