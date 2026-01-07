@@ -6,6 +6,8 @@
 
 **IMPORTANT**: DO NOT add comments unless they are explaining some explicit behavior about the code that can't be explained with the code itself. The code should be enough for explaining what it does. You should not write any useful comments like "Buttons", "BackgroundBoxes", just to tell you're instantiating or using something.
 
+**IMPORTANT**: If a bug appears to be caused by React StrictMode (double rendering in development), inform the user about it first instead of immediately changing the code. StrictMode intentionally runs effects twice to help find bugs - this is expected behavior in development and doesn't occur in production. Only make code changes if the user confirms it's actually a problem or if the double-invocation causes real issues (like duplicate API calls or state corruption).
+
 ## Project Overview
 
 A personal website with three distinct user journeys:
@@ -50,7 +52,7 @@ This project prioritizes smooth, polished animations throughout the UI. Every in
 
 ```tsx
 // Use Framer Motion for animations
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 <motion.div
   initial={{ opacity: 0 }}
@@ -149,19 +151,24 @@ import { motion } from "framer-motion";
 
 ### Phase 3: Portfolio/About Page
 
-- [ ] Design recruiter-focused layout
-- [ ] Sections: About, Tech Stack, Projects, Achievements, Contact
-- [ ] Timeline/experience visualization
+- [x] Design recruiter-focused layout
+- [x] Sections: About, Technologies, Experience (Timeline), Education
+- [x] Timeline/experience visualization with animations
 - [ ] Downloadable resume option
 - [ ] Social links
 
 ### Phase 4: Typing Roguelike Game
 
-- [ ] Game engine setup (Canvas or DOM-based)
-- [ ] Monster spawning system with words
-- [ ] Typing input handling
-- [ ] Wave/difficulty progression
-- [ ] Score system with local storage
+- [x] Game engine setup (DOM-based with requestAnimationFrame)
+- [x] Monster spawning system with words
+- [x] Typing input handling
+- [x] Adaptive difficulty progression based on player performance
+- [x] Score system with local storage (high score persistence)
+- [x] Power-up system with rarity tiers (common, rare, epic, legendary)
+- [x] Multi-layer monsters with skull-based HP display
+- [x] Gibberish monsters (random words) after 30k score
+- [x] Stackable shield system
+- [x] Combo system with combo saver power-up
 - [ ] Sound effects (optional)
 - [ ] Leaderboard (optional, would need backend)
 
