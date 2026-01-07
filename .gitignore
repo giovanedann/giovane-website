@@ -42,3 +42,6 @@ next-env.d.ts
 
 # development files
 /dev-files
+
+# claude agents cache
+.claude/agents/
