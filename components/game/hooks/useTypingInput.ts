@@ -69,13 +69,13 @@ export function useTypingInput({
           setCurrentInput("");
           setTargetMonsterId(null);
         }
-      } else if (!currentInputRef.current) {
-        const potentialMatch = monsters.find((m) =>
+      } else {
+        const newMatch = monsters.find((m) =>
           m.word.toLowerCase().startsWith(char.toLowerCase())
         );
-        if (potentialMatch) {
+        if (newMatch) {
           setCurrentInput(char);
-          setTargetMonsterId(potentialMatch.id);
+          setTargetMonsterId(newMatch.id);
           onCorrectCharacter?.();
         }
       }
