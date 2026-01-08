@@ -27,6 +27,7 @@ import { InputDisplay } from "./InputDisplay";
 import { Monster } from "./Monster";
 import { StartScreen } from "./StartScreen";
 import { GameOverScreen } from "./GameOverScreen";
+import { PowerUpEffects } from "./PowerUpEffects";
 
 const GAME_HEIGHT = 650;
 const PERFORMANCE_UPDATE_INTERVAL = 5000;
@@ -61,6 +62,7 @@ export function Game() {
   const [monsters, setMonsters] = useState<MonsterType[]>([]);
   const monstersRef = useRef<MonsterType[]>([]);
   const [screenShake, setScreenShake] = useState(false);
+  const [nukeTriggered, setNukeTriggered] = useState(false);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -78,11 +80,12 @@ export function Game() {
     setMonsters(monstersRef.current);
   }, []);
 
-  const { trySpawn, reset: resetSpawner } = useMonsterSpawner({
+  const { trySpawn, trySpawnPowerUp, reset: resetSpawner } = useMonsterSpawner({
     gameWidth: containerWidth,
     skillLevel: gameState.skillLevel,
     performanceMultiplier: adaptiveState.currentMultiplier,
     currentScore: gameState.score,
+    monsterCount: monsters.length,
     onSpawn: handleSpawn,
   });
 
@@ -95,6 +98,8 @@ export function Game() {
       }));
     },
     onNuke: () => {
+      setNukeTriggered(true);
+
       let killedCount = 0;
       const surviving = monstersRef.current
         .map((monster) => {
@@ -173,8 +178,11 @@ export function Game() {
       }
 
       if (monster.currentLayer > 1) {
+        const newLayer = monster.currentLayer - 1;
         monstersRef.current = monstersRef.current.map((m) =>
-          m.id === monsterId ? { ...m, currentLayer: m.currentLayer - 1 } : m
+          m.id === monsterId
+            ? { ...m, currentLayer: newLayer, word: m.words[newLayer - 1] }
+            : m
         );
         setMonsters(monstersRef.current);
         return;
@@ -262,6 +270,7 @@ export function Game() {
       const isFrozen = isPowerUpActive("freeze") || isPowerUpActive("timeStop");
       if (!isFrozen) {
         trySpawn(now, elapsedTime);
+        trySpawnPowerUp(now, elapsedTime);
       }
 
       const speedMultiplier = getSpeedMultiplier();
@@ -291,6 +300,8 @@ export function Game() {
           let shieldsUsed = 0;
 
           for (let i = 0; i < escaped.length; i++) {
+            if (escaped[i].isPowerUp) continue;
+
             if (newShieldCount > 0) {
               newShieldCount--;
               shieldsUsed++;
@@ -344,7 +355,7 @@ export function Game() {
         });
       }
     },
-    [trySpawn, getSpeedMultiplier, isPowerUpActive]
+    [trySpawn, trySpawnPowerUp, getSpeedMultiplier, isPowerUpActive]
   );
 
   const { reset: resetGameLoop } = useGameLoop({
@@ -411,6 +422,12 @@ export function Game() {
           className="relative overflow-hidden"
           style={{ height: GAME_HEIGHT }}
         >
+          <PowerUpEffects
+            activePowerUps={gameState.activePowerUps}
+            nukeTriggered={nukeTriggered}
+            onNukeComplete={() => setNukeTriggered(false)}
+          />
+
           <AnimatePresence>
             {monsters.map((monster) => (
               <Monster

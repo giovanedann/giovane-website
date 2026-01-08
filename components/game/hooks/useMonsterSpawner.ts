@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import { Monster, PowerUpType, PowerUpRarity, SkillLevel, POWER_UP_CONFIGS } from "../types";
-import { getWordByDifficulty, getMaxLayers, getGibberishWord } from "../utils/wordLists";
+import { getWordByDifficulty, getMaxLayers, getGibberishWord, getWordsForLayers } from "../utils/wordLists";
 import { getAdaptiveDifficultyConfig, getMonsterSpeed } from "../utils/difficulty";
 
 let monsterId = 0;
@@ -12,21 +12,29 @@ interface UseMonsterSpawnerOptions {
   skillLevel: SkillLevel;
   performanceMultiplier: number;
   currentScore: number;
+  monsterCount: number;
   onSpawn: (monster: Monster) => void;
 }
 
-function selectWeightedPowerUp(): { type: PowerUpType; word: string; rarity: PowerUpRarity } {
-  const totalWeight = POWER_UP_CONFIGS.reduce((sum, config) => sum + config.spawnWeight, 0);
+function selectWeightedPowerUp(monsterCount: number): { type: PowerUpType; word: string; rarity: PowerUpRarity } {
+  const availableConfigs = POWER_UP_CONFIGS.filter((config) => {
+    if ((config.type === "freeze" || config.type === "timeStop") && monsterCount === 0) {
+      return false;
+    }
+    return true;
+  });
+
+  const totalWeight = availableConfigs.reduce((sum, config) => sum + config.spawnWeight, 0);
   let random = Math.random() * totalWeight;
 
-  for (const config of POWER_UP_CONFIGS) {
+  for (const config of availableConfigs) {
     random -= config.spawnWeight;
     if (random <= 0) {
       return { type: config.type, word: config.word, rarity: config.rarity };
     }
   }
 
-  const fallback = POWER_UP_CONFIGS[0];
+  const fallback = availableConfigs[0] || POWER_UP_CONFIGS[0];
   return { type: fallback.type, word: fallback.word, rarity: fallback.rarity };
 }
 
@@ -50,56 +58,90 @@ export function useMonsterSpawner({
   skillLevel,
   performanceMultiplier,
   currentScore,
+  monsterCount,
   onSpawn,
 }: UseMonsterSpawnerOptions) {
   const lastSpawnRef = useRef<number>(0);
+  const lastPowerUpSpawnRef = useRef<number>(0);
 
   const spawnMonster = useCallback(
     (elapsedTime: number) => {
       const config = getAdaptiveDifficultyConfig(skillLevel, elapsedTime, performanceMultiplier);
-      const isPowerUp = Math.random() < config.powerUpChance;
-      const spawnGibberish = !isPowerUp && shouldSpawnGibberish(currentScore);
+      const spawnGibberish = shouldSpawnGibberish(currentScore);
 
       let word: string;
-      let powerUpType: PowerUpType | undefined;
-      let powerUpRarity: PowerUpRarity | undefined;
+      let words: string[];
       let isGibberish = false;
 
-      if (isPowerUp) {
-        const selected = selectWeightedPowerUp();
-        powerUpType = selected.type;
-        powerUpRarity = selected.rarity;
-        word = selected.word;
-      } else if (spawnGibberish) {
+      const layers = spawnGibberish ? 1 : getMaxLayers(elapsedTime, config.maxLayers);
+
+      if (spawnGibberish) {
         word = getGibberishWord(5, 10);
+        words = [word];
         isGibberish = true;
       } else {
-        word = getWordByDifficulty(elapsedTime, config.minWordLength, config.maxWordLength);
+        const firstWord = getWordByDifficulty(elapsedTime, config.minWordLength, config.maxWordLength);
+        if (layers > 1) {
+          words = getWordsForLayers(layers, firstWord.length);
+          if (words.length < layers) {
+            const remaining = layers - words.length;
+            for (let i = 0; i < remaining; i++) {
+              words.push(getWordByDifficulty(elapsedTime, config.minWordLength, config.maxWordLength));
+            }
+          }
+        } else {
+          words = [firstWord];
+        }
+        word = words[layers - 1];
       }
 
       const padding = 100;
       const x = padding + Math.random() * (gameWidth - padding * 2);
 
-      const layers = isPowerUp || isGibberish ? 1 : getMaxLayers(elapsedTime, config.maxLayers);
-
       const monster: Monster = {
         id: `monster-${++monsterId}`,
         word,
+        words,
         x,
         y: -30,
         speed: getMonsterSpeed(skillLevel, elapsedTime, performanceMultiplier),
         layers,
         currentLayer: layers,
         type: "basic",
-        isPowerUp,
-        powerUpType,
-        powerUpRarity,
+        isPowerUp: false,
         isGibberish,
       };
 
       onSpawn(monster);
     },
     [gameWidth, skillLevel, performanceMultiplier, currentScore, onSpawn]
+  );
+
+  const spawnPowerUp = useCallback(
+    (elapsedTime: number) => {
+      const selected = selectWeightedPowerUp(monsterCount);
+
+      const padding = 100;
+      const x = padding + Math.random() * (gameWidth - padding * 2);
+
+      const monster: Monster = {
+        id: `powerup-${++monsterId}`,
+        word: selected.word,
+        words: [selected.word],
+        x,
+        y: -30,
+        speed: getMonsterSpeed(skillLevel, elapsedTime, performanceMultiplier) * 0.8,
+        layers: 1,
+        currentLayer: 1,
+        type: "basic",
+        isPowerUp: true,
+        powerUpType: selected.type,
+        powerUpRarity: selected.rarity,
+      };
+
+      onSpawn(monster);
+    },
+    [gameWidth, skillLevel, performanceMultiplier, monsterCount, onSpawn]
   );
 
   const trySpawn = useCallback(
@@ -114,10 +156,26 @@ export function useMonsterSpawner({
     [skillLevel, performanceMultiplier, spawnMonster]
   );
 
+  const trySpawnPowerUp = useCallback(
+    (currentTime: number, elapsedTime: number) => {
+      const config = getAdaptiveDifficultyConfig(skillLevel, elapsedTime, performanceMultiplier);
+      const powerUpInterval = config.spawnInterval * 1.5;
+
+      if (currentTime - lastPowerUpSpawnRef.current >= powerUpInterval) {
+        if (Math.random() < config.powerUpChance) {
+          spawnPowerUp(elapsedTime);
+        }
+        lastPowerUpSpawnRef.current = currentTime;
+      }
+    },
+    [skillLevel, performanceMultiplier, spawnPowerUp]
+  );
+
   const reset = useCallback(() => {
     lastSpawnRef.current = 0;
+    lastPowerUpSpawnRef.current = 0;
     monsterId = 0;
   }, []);
 
-  return { trySpawn, spawnMonster, reset };
+  return { trySpawn, trySpawnPowerUp, spawnMonster, reset };
 }

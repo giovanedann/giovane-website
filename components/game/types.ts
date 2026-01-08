@@ -55,6 +55,7 @@ export interface AdaptiveDifficultyState {
 export interface Monster {
   id: string;
   word: string;
+  words: string[];
   x: number;
   y: number;
   speed: number;

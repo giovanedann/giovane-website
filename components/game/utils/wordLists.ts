@@ -79,6 +79,22 @@ export function getWordByDifficulty(
   }
 }
 
+export function getWordsForLayers(layerCount: number, targetLength: number): string[] {
+  const wordsOfLength = allWords.filter((word) => word.length === targetLength);
+
+  if (wordsOfLength.length < layerCount) {
+    const similarWords = allWords.filter(
+      (word) => word.length >= targetLength - 1 && word.length <= targetLength + 1
+    );
+    const shuffled = [...similarWords].sort(() => Math.random() - 0.5);
+    const unique = [...new Set(shuffled)];
+    return unique.slice(0, layerCount);
+  }
+
+  const shuffled = [...wordsOfLength].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, layerCount);
+}
+
 export function getMaxLayers(elapsedTime: number, configMaxLayers?: number): number {
   const maxAllowed = configMaxLayers ?? 3;
   const minutes = elapsedTime / 60000;
