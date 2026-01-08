@@ -1,16 +1,15 @@
-# Skill: SEO Audit
+---
+name: seo-check
+description: Run an SEO audit on the website. Use when you want to check SEO, audit metadata, or verify search engine optimization.
+---
+
+# SEO Audit
 
 Run an SEO audit on the website.
 
-## Usage
-
-```
-/seo-check
-```
-
 ## Instructions
 
-When the user runs this skill, perform a comprehensive SEO audit:
+When this skill is triggered, perform a comprehensive SEO audit:
 
 ### 1. Check Metadata Files
 
@@ -37,7 +36,7 @@ For each MDX file in `content/posts/`:
 
 ### 4. Validate Structure
 
-- Proper heading hierarchy (h1 → h2 → h3)
+- Proper heading hierarchy (h1 -> h2 -> h3)
 - All images have `alt` attributes
 - Internal links use Next.js `Link` component
 - No broken links
@@ -51,9 +50,9 @@ For each MDX file in `content/posts/`:
 ### 6. Generate Report
 
 Output a report with:
-- ✅ Passing checks
-- ⚠️ Warnings (improvements recommended)
-- ❌ Errors (must fix)
+- Passing checks
+- Warnings (improvements recommended)
+- Errors (must fix)
 
 ## Post-Audit
 

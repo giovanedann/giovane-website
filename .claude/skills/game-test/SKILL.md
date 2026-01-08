@@ -1,16 +1,15 @@
-# Skill: Test Game Locally
+---
+name: game-test
+description: Test the typing roguelike game in development. Use when you want to test the game, check game functionality, or verify gameplay mechanics.
+---
+
+# Test Game Locally
 
 Test the typing roguelike game in development.
 
-## Usage
-
-```
-/game-test
-```
-
 ## Instructions
 
-When the user runs this skill:
+When this skill is triggered:
 
 ### 1. Ensure Dev Server is Running
 
