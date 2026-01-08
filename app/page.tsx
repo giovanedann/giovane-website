@@ -31,11 +31,20 @@ export default function Home() {
           Software & AI Engineer
         </motion.p>
 
-        <motion.div
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-4 flex flex-col gap-4 sm:flex-row"
+          className="mt-6 text-lg text-foreground/80"
+        >
+          Who are <span className="font-bold">you</span>?
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex flex-col gap-4 sm:flex-row"
         >
           <Link href="/blog">
             <Button
