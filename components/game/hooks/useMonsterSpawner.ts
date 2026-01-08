@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { Monster, PowerUpType, PowerUpRarity, SkillLevel, POWER_UP_CONFIGS } from "../types";
-import { getWordByDifficulty, getMaxLayers, getGibberishWord, getWordsForLayers } from "../utils/wordLists";
+import { Monster, PowerUpType, PowerUpRarity, SkillLevel, POWER_UP_CONFIGS, BOSS_CONFIG, BOSS_NAMES } from "../types";
+import { getWordByDifficulty, getMaxLayers, getGibberishWord, getWordsForLayers, getRandomWordInRange } from "../utils/wordLists";
 import { getAdaptiveDifficultyConfig, getMonsterSpeed } from "../utils/difficulty";
 
 let monsterId = 0;
@@ -155,6 +155,40 @@ export function useMonsterSpawner({
     [gameWidth, skillLevel, performanceMultiplier, monsterCount, onSpawn]
   );
 
+  const spawnBoss = useCallback(
+    (bossNumber: number) => {
+      const config = getAdaptiveDifficultyConfig(skillLevel, 0, performanceMultiplier);
+      const wordCount = BOSS_CONFIG.baseWordCount + (bossNumber - 1) * BOSS_CONFIG.wordCountIncrement;
+
+      const words: string[] = [];
+      for (let i = 0; i < wordCount; i++) {
+        const word = getRandomWordInRange(config.minWordLength, config.maxWordLength);
+        words.push(word);
+      }
+
+      const x = gameWidth / 2;
+      const speed = BOSS_CONFIG.baseSpeed * (1 + (bossNumber - 1) * BOSS_CONFIG.speedIncrement);
+      const bossName = BOSS_NAMES[Math.floor(Math.random() * BOSS_NAMES.length)];
+
+      const boss: Monster = {
+        id: `boss-${bossNumber}`,
+        word: words[wordCount - 1],
+        words,
+        x,
+        y: -50,
+        speed,
+        layers: wordCount,
+        currentLayer: wordCount,
+        type: "boss",
+        isPowerUp: false,
+        bossName,
+      };
+
+      onSpawn(boss);
+    },
+    [gameWidth, skillLevel, performanceMultiplier, onSpawn]
+  );
+
   const trySpawn = useCallback(
     (currentTime: number, elapsedTime: number) => {
       const config = getAdaptiveDifficultyConfig(skillLevel, elapsedTime, performanceMultiplier);
@@ -188,5 +222,5 @@ export function useMonsterSpawner({
     monsterId = 0;
   }, []);
 
-  return { trySpawn, trySpawnPowerUp, spawnMonster, reset };
+  return { trySpawn, trySpawnPowerUp, spawnMonster, spawnBoss, reset };
 }

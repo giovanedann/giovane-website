@@ -95,6 +95,21 @@ export function getWordsForLayers(layerCount: number, targetLength: number): str
   return shuffled.slice(0, layerCount);
 }
 
+export function getRandomWordInRange(minLength: number, maxLength: number): string {
+  const targetLength = minLength + Math.floor(Math.random() * (maxLength - minLength + 1));
+  const pool = allWords.filter((word) => word.length === targetLength);
+  if (pool.length > 0) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  const flexiblePool = allWords.filter(
+    (word) => word.length >= minLength && word.length <= maxLength
+  );
+  if (flexiblePool.length > 0) {
+    return flexiblePool[Math.floor(Math.random() * flexiblePool.length)];
+  }
+  return allWords[Math.floor(Math.random() * allWords.length)];
+}
+
 export function getMaxLayers(elapsedTime: number, configMaxLayers?: number): number {
   const maxAllowed = configMaxLayers ?? 3;
   const minutes = elapsedTime / 60000;

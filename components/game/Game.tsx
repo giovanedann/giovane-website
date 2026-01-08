@@ -7,9 +7,12 @@ import {
   GameState,
   ActivePowerUp,
   SkillLevel,
+  BossState,
   DEFAULT_GAME_CONFIG,
   DEFAULT_PERFORMANCE_METRICS,
   DEFAULT_ADAPTIVE_STATE,
+  DEFAULT_BOSS_STATE,
+  BOSS_CONFIG,
   AdaptiveDifficultyState,
 } from "./types";
 import { useGameLoop } from "./hooks/useGameLoop";
@@ -28,6 +31,8 @@ import { Monster } from "./Monster";
 import { StartScreen } from "./StartScreen";
 import { GameOverScreen } from "./GameOverScreen";
 import { PowerUpEffects } from "./PowerUpEffects";
+import { BossWarning } from "./BossWarning";
+import { BossVictory } from "./BossVictory";
 
 const GAME_HEIGHT = 650;
 const PERFORMANCE_UPDATE_INTERVAL = 5000;
@@ -63,6 +68,7 @@ export function Game() {
   const monstersRef = useRef<MonsterType[]>([]);
   const [screenShake, setScreenShake] = useState(false);
   const [nukeTriggered, setNukeTriggered] = useState(false);
+  const [bossState, setBossState] = useState<BossState>(DEFAULT_BOSS_STATE);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -80,7 +86,7 @@ export function Game() {
     setMonsters(monstersRef.current);
   }, []);
 
-  const { trySpawn, trySpawnPowerUp, reset: resetSpawner } = useMonsterSpawner({
+  const { trySpawn, trySpawnPowerUp, spawnBoss, reset: resetSpawner } = useMonsterSpawner({
     gameWidth: containerWidth,
     skillLevel: gameState.skillLevel,
     performanceMultiplier: adaptiveState.currentMultiplier,
@@ -189,6 +195,29 @@ export function Game() {
         return;
       }
 
+      const isBoss = monster.type === "boss";
+
+      if (isBoss) {
+        const shieldsAwarded = BOSS_CONFIG.shieldsPerBoss * bossState.bossNumber;
+        setBossState((prev) => ({
+          ...prev,
+          isActive: false,
+          defeatAnimation: true,
+          shieldsAwarded,
+        }));
+        setGameState((prev) => ({
+          ...prev,
+          score: prev.score + BOSS_CONFIG.scoreBonus,
+          shieldCount: prev.shieldCount + shieldsAwarded,
+          combo: prev.combo + 1,
+          maxCombo: Math.max(prev.maxCombo, prev.combo + 1),
+          monstersKilled: prev.monstersKilled + 1,
+        }));
+        monstersRef.current = monstersRef.current.filter((m) => m.id !== monsterId);
+        setMonsters(monstersRef.current);
+        return;
+      }
+
       const scoreResult = calculateScore(
         monster.word.length,
         monster.layers,
@@ -207,7 +236,7 @@ export function Game() {
       monstersRef.current = monstersRef.current.filter((m) => m.id !== monsterId);
       setMonsters(monstersRef.current);
     },
-    [activatePowerUp, gameState.combo, gameState.activePowerUps]
+    [activatePowerUp, gameState.combo, gameState.activePowerUps, bossState.bossNumber]
   );
 
   const {
@@ -269,8 +298,43 @@ export function Game() {
       }));
 
       const isFrozen = isPowerUpActive("freeze") || isPowerUpActive("timeStop");
+
+      const timeSinceLastBoss = elapsedTime - bossState.lastBossSpawnTime;
+      const nextBossNumber = bossState.bossNumber + 1;
+      const warningStart = BOSS_CONFIG.spawnInterval - BOSS_CONFIG.warningDuration;
+
+      if (!bossState.warningActive && !bossState.isActive && timeSinceLastBoss >= warningStart) {
+        setBossState((prev) => ({ ...prev, warningActive: true, warningStartTime: now }));
+      }
+
+      const regularMonstersOnScreen = monstersRef.current.filter(
+        (m) => !m.isPowerUp && m.type !== "boss"
+      ).length;
+      const bossAlreadyExists = monstersRef.current.some((m) => m.type === "boss");
+
+      if (
+        bossState.warningActive &&
+        !bossState.isActive &&
+        !bossAlreadyExists &&
+        timeSinceLastBoss >= BOSS_CONFIG.spawnInterval &&
+        regularMonstersOnScreen === 0
+      ) {
+        spawnBoss(nextBossNumber);
+        setBossState((prev) => ({
+          ...prev,
+          isActive: true,
+          bossNumber: nextBossNumber,
+          warningActive: false,
+          lastBossSpawnTime: elapsedTime,
+        }));
+      }
+
+      const shouldSpawnRegularMonsters = !bossState.isActive && !bossState.warningActive;
+
       if (!isFrozen) {
-        trySpawn(now, elapsedTime);
+        if (shouldSpawnRegularMonsters) {
+          trySpawn(now, elapsedTime);
+        }
         trySpawnPowerUp(now, elapsedTime);
       }
 
@@ -356,7 +420,7 @@ export function Game() {
         });
       }
     },
-    [trySpawn, trySpawnPowerUp, getSpeedMultiplier, isPowerUpActive]
+    [trySpawn, trySpawnPowerUp, spawnBoss, getSpeedMultiplier, isPowerUpActive, bossState]
   );
 
   const { reset: resetGameLoop } = useGameLoop({
@@ -377,6 +441,7 @@ export function Game() {
       processedEscapesRef.current.clear();
 
       setAdaptiveState(DEFAULT_ADAPTIVE_STATE);
+      setBossState(DEFAULT_BOSS_STATE);
 
       setGameState({
         status: "playing",
@@ -427,6 +492,15 @@ export function Game() {
             activePowerUps={gameState.activePowerUps}
             nukeTriggered={nukeTriggered}
             onNukeComplete={() => setNukeTriggered(false)}
+          />
+
+          <BossWarning isActive={bossState.warningActive} />
+
+          <BossVictory
+            isActive={bossState.defeatAnimation}
+            shieldsAwarded={bossState.shieldsAwarded}
+            bossNumber={bossState.bossNumber}
+            onComplete={() => setBossState((prev) => ({ ...prev, defeatAnimation: false }))}
           />
 
           <AnimatePresence>

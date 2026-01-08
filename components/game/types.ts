@@ -52,6 +52,16 @@ export interface AdaptiveDifficultyState {
   lastUpdateTime: number;
 }
 
+export interface BossState {
+  isActive: boolean;
+  bossNumber: number;
+  lastBossSpawnTime: number;
+  warningActive: boolean;
+  warningStartTime: number;
+  defeatAnimation: boolean;
+  shieldsAwarded: number;
+}
+
 export interface Monster {
   id: string;
   word: string;
@@ -66,6 +76,7 @@ export interface Monster {
   powerUpType?: PowerUpType;
   powerUpRarity?: PowerUpRarity;
   isGibberish?: boolean;
+  bossName?: string;
 }
 
 export interface ActivePowerUp {
@@ -221,3 +232,34 @@ export const DEFAULT_ADAPTIVE_STATE: AdaptiveDifficultyState = {
   targetMultiplier: 1.0,
   lastUpdateTime: 0,
 };
+
+export const DEFAULT_BOSS_STATE: BossState = {
+  isActive: false,
+  bossNumber: 0,
+  lastBossSpawnTime: 0,
+  warningActive: false,
+  warningStartTime: 0,
+  defeatAnimation: false,
+  shieldsAwarded: 0,
+};
+
+export const BOSS_CONFIG = {
+  spawnInterval: 120000,
+  warningDuration: 3000,
+  baseWordCount: 15,
+  wordCountIncrement: 5,
+  baseSpeed: 12,
+  speedIncrement: 0.05,
+  shieldsPerBoss: 3,
+  scoreBonus: 1000,
+  defeatAnimationDuration: 2000,
+};
+
+export const BOSS_NAMES = [
+  "Leet Code",
+  "Memory Leak",
+  "Friday Deploy",
+  "Merge Conflict",
+  "PHP",
+  "Java",
+];
