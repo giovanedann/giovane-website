@@ -102,13 +102,18 @@ export function getMaxLayers(elapsedTime: number, configMaxLayers?: number): num
   if (minutes < 2 || maxAllowed === 1) return 1;
 
   if (minutes < 4) {
-    if (maxAllowed >= 2 && Math.random() > 0.7) return 2;
+    if (maxAllowed >= 2 && Math.random() > 0.85) return 2;
     return 1;
   }
 
-  if (maxAllowed >= 3 && Math.random() > 0.6) {
-    return Math.random() > 0.5 ? 3 : 2;
+  if (minutes < 6) {
+    if (maxAllowed >= 2 && Math.random() > 0.75) return 2;
+    return 1;
   }
-  if (maxAllowed >= 2 && Math.random() > 0.5) return 2;
+
+  if (maxAllowed >= 3 && Math.random() > 0.8) {
+    return 3;
+  }
+  if (maxAllowed >= 2 && Math.random() > 0.65) return 2;
   return 1;
 }

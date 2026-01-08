@@ -48,7 +48,7 @@ export function getAdaptiveDifficultyConfig(
 
   const powerUpChance = lerp(
     tierConfig.basePowerUpChance,
-    tierConfig.basePowerUpChance * 1.8,
+    tierConfig.basePowerUpChance * 2.5,
     effectiveProgression
   );
 
