@@ -22,6 +22,27 @@ Apply fixes to a blog post based on review feedback while preserving the author'
 - Reorganize bullet points for clarity
 - Break up long paragraphs if they cover multiple ideas
 
+### Visual Elements (When Reasonable)
+Add visual variety to break up walls of text, but only where it makes sense:
+
+- **Bullet points with bold labels** → For lists of items with explanations
+- **Numbered lists** → For sequential steps or ordered items
+- **Code blocks** → For commands, file paths, or technical references
+- **Blockquotes** → For key insights or memorable quotes from the post
+- **Horizontal rules** → For clear section breaks (use sparingly)
+
+**When to add visual elements:**
+- Lists of 3+ related items → convert to bullet points
+- Step-by-step processes → convert to numbered lists
+- Technical terms, commands, or paths → use inline code or code blocks
+- Key takeaways or memorable phrases → consider blockquotes
+
+**When NOT to add:**
+- Don't force visual elements where text flows naturally
+- Don't add code blocks for non-technical content
+- Don't over-use blockquotes (max 1-2 per post)
+- If the post doesn't have content that fits, don't add any
+
 ### Image Suggestions (Non-demanding)
 - Suggest where images could enhance the post (optional)
 - List suggestions separately, don't insert placeholders
