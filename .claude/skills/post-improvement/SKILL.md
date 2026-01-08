@@ -10,6 +10,7 @@ Apply fixes to a blog post based on review feedback while preserving the author'
 ## Important Guidelines
 
 ### Preserve the Author's Voice
+
 - **Keep humor intact**: Don't tone down jokes, sarcasm, or playful exaggeration
 - **Maintain casual style**: Don't make the writing more formal
 - **Keep strong opinions**: Statements like "X is a scam" should stay as-is
@@ -17,12 +18,14 @@ Apply fixes to a blog post based on review feedback while preserving the author'
 - **Minimal text changes**: The improved text should feel like the author wrote it, not a rewrite
 
 ### Structure Improvements
+
 - Improve paragraph organization if sections feel disjointed
 - Add better transitions between sections when needed
 - Reorganize bullet points for clarity
 - Break up long paragraphs if they cover multiple ideas
 
 ### Visual Elements (When Reasonable)
+
 Add visual variety to break up walls of text, but only where it makes sense:
 
 - **Bullet points with bold labels** → For lists of items with explanations
@@ -32,24 +35,28 @@ Add visual variety to break up walls of text, but only where it makes sense:
 - **Horizontal rules** → For clear section breaks (use sparingly)
 
 **When to add visual elements:**
+
 - Lists of 3+ related items → convert to bullet points
 - Step-by-step processes → convert to numbered lists
 - Technical terms, commands, or paths → use inline code or code blocks
 - Key takeaways or memorable phrases → consider blockquotes
 
 **When NOT to add:**
+
 - Don't force visual elements where text flows naturally
 - Don't add code blocks for non-technical content
 - Don't over-use blockquotes (max 1-2 per post)
 - If the post doesn't have content that fits, don't add any
 
 ### Image Suggestions (Non-demanding)
+
 - Suggest where images could enhance the post (optional)
 - List suggestions separately, don't insert placeholders
 - Only affects the score if the post explicitly needs visuals (tutorials, step-by-step guides)
 - Personal/opinion posts don't need images
 
 ### What NOT to Do
+
 - Don't add sections the author didn't plan for
 - Don't add disclaimers or soften strong statements
 - Don't expand bullet points into paragraphs unless asked
@@ -68,6 +75,7 @@ Add visual variety to break up walls of text, but only where it makes sense:
 6. Show a summary of changes
 
 ### Grammar Fixes (Auto-apply)
+
 - Capitalize "I" consistently
 - Fix typos (machanical → mechanical, would by → would be)
 - Fix verb tense (haven't like → didn't like, have build → have built)
@@ -75,17 +83,21 @@ Add visual variety to break up walls of text, but only where it makes sense:
 - Fix subject-verb agreement (company that have → company that has)
 
 ### Structure Improvements (Auto-apply)
+
 - Add line breaks between dense paragraphs
 - Reorder sentences within a paragraph for better flow
 - Group related bullet points together
 
 ### Incomplete Sections (Flag Only)
+
 If a section contains placeholder text like "Lorem ipsum" or "TODO":
+
 - Highlight the section
 - Don't fill it in
 - Remind the author to complete it
 
 ### Image Suggestions (Separate Section)
+
 - List where images could help (if any)
 - Mark as optional suggestions
 - Example: "Consider adding a screenshot of the game here (optional)"
@@ -101,6 +113,7 @@ After making changes:
 5. Confirm the file has been updated
 
 Example output:
+
 ```
 ## Grammar Fixes Applied
 - Fixed 23 instances of lowercase "i" → "I"
