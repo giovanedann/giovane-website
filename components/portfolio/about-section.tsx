@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { MapPin } from "lucide-react";
+import { SocialLinks } from "@/components/social-links";
 
 export function AboutSection() {
   const prefersReducedMotion = useReducedMotion();
@@ -74,6 +75,16 @@ export function AboutSection() {
           building great products is only half the fun if you can't communicate why
           they matter.
         </motion.p>
+
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-8 flex justify-center"
+        >
+          <SocialLinks size="lg" />
+        </motion.div>
       </motion.div>
     </section>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getPostBySlug, getPostSlugs, formatDate } from "@/lib/posts";
 import { mdxComponents } from "@/components/blog/mdx-components";
+import { FloatingSocials } from "@/components/blog/floating-socials";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -88,6 +89,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <MDXRemote source={post.content} components={mdxComponents} />
         </div>
       </article>
+      <FloatingSocials />
     </div>
   );
 }
