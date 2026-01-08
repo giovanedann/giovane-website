@@ -70,13 +70,15 @@ export function useTypingInput({
           setTargetMonsterId(null);
         }
       } else {
-        const newMatch = monsters.find((m) =>
-          m.word.toLowerCase().startsWith(char.toLowerCase())
-        );
-        if (newMatch) {
-          setCurrentInput(char);
-          setTargetMonsterId(newMatch.id);
-          onCorrectCharacter?.();
+        if (!targetMonsterIdRef.current) {
+          const newMatch = monsters.find((m) =>
+            m.word.toLowerCase().startsWith(char.toLowerCase())
+          );
+          if (newMatch) {
+            setCurrentInput(char);
+            setTargetMonsterId(newMatch.id);
+            onCorrectCharacter?.();
+          }
         }
       }
     },
