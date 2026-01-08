@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Monster } from "../types";
 
 interface UseTypingInputOptions {
@@ -18,6 +18,16 @@ export function useTypingInput({
 }: UseTypingInputOptions) {
   const [currentInput, setCurrentInput] = useState("");
   const [targetMonsterId, setTargetMonsterId] = useState<string | null>(null);
+  const currentInputRef = useRef(currentInput);
+  const targetMonsterIdRef = useRef(targetMonsterId);
+
+  useEffect(() => {
+    currentInputRef.current = currentInput;
+  }, [currentInput]);
+
+  useEffect(() => {
+    targetMonsterIdRef.current = targetMonsterId;
+  }, [targetMonsterId]);
 
   const findMatchingMonster = useCallback(
     (input: string): Monster | null => {
@@ -29,8 +39,9 @@ export function useTypingInput({
 
       if (matching.length === 0) return null;
 
-      if (targetMonsterId) {
-        const current = matching.find((m) => m.id === targetMonsterId);
+      const currentTargetId = targetMonsterIdRef.current;
+      if (currentTargetId) {
+        const current = matching.find((m) => m.id === currentTargetId);
         if (current) return current;
       }
 
@@ -38,59 +49,74 @@ export function useTypingInput({
         monster.y > closest.y ? monster : closest
       );
     },
-    [monsters, targetMonsterId]
+    [monsters]
   );
 
   const matchingMonster = findMatchingMonster(currentInput);
+
+  const handleCharacterInput = useCallback(
+    (char: string) => {
+      const newInput = currentInputRef.current + char;
+      const monster = findMatchingMonster(newInput);
+
+      if (monster) {
+        setCurrentInput(newInput);
+        setTargetMonsterId(monster.id);
+        onCorrectCharacter?.();
+
+        if (newInput.toLowerCase() === monster.word.toLowerCase()) {
+          onWordComplete(monster.id);
+          setCurrentInput("");
+          setTargetMonsterId(null);
+        }
+      } else if (!currentInputRef.current) {
+        const potentialMatch = monsters.find((m) =>
+          m.word.toLowerCase().startsWith(char.toLowerCase())
+        );
+        if (potentialMatch) {
+          setCurrentInput(char);
+          setTargetMonsterId(potentialMatch.id);
+          onCorrectCharacter?.();
+        }
+      }
+    },
+    [findMatchingMonster, monsters, onWordComplete, onCorrectCharacter]
+  );
+
+  const handleBackspace = useCallback(() => {
+    setCurrentInput((prev) => prev.slice(0, -1));
+    if (currentInputRef.current.length <= 1) {
+      setTargetMonsterId(null);
+    }
+  }, []);
+
+  const handleEscape = useCallback(() => {
+    setCurrentInput("");
+    setTargetMonsterId(null);
+  }, []);
 
   useEffect(() => {
     if (!isActive) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setCurrentInput("");
-        setTargetMonsterId(null);
+        handleEscape();
         return;
       }
 
       if (e.key === "Backspace") {
-        setCurrentInput((prev) => prev.slice(0, -1));
-        if (currentInput.length <= 1) {
-          setTargetMonsterId(null);
-        }
+        handleBackspace();
         return;
       }
 
       if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
-        const newInput = currentInput + e.key.toLowerCase();
-        const monster = findMatchingMonster(newInput);
-
-        if (monster) {
-          setCurrentInput(newInput);
-          setTargetMonsterId(monster.id);
-          onCorrectCharacter?.();
-
-          if (newInput.toLowerCase() === monster.word.toLowerCase()) {
-            onWordComplete(monster.id);
-            setCurrentInput("");
-            setTargetMonsterId(null);
-          }
-        } else if (!currentInput) {
-          const potentialMatch = monsters.find((m) =>
-            m.word.toLowerCase().startsWith(e.key.toLowerCase())
-          );
-          if (potentialMatch) {
-            setCurrentInput(e.key.toLowerCase());
-            setTargetMonsterId(potentialMatch.id);
-            onCorrectCharacter?.();
-          }
-        }
+        handleCharacterInput(e.key.toLowerCase());
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isActive, currentInput, findMatchingMonster, monsters, onWordComplete]);
+  }, [isActive, handleCharacterInput, handleBackspace, handleEscape]);
 
   const reset = useCallback(() => {
     setCurrentInput("");
@@ -101,6 +127,8 @@ export function useTypingInput({
     currentInput,
     targetMonsterId,
     matchingMonster,
+    handleCharacterInput,
+    handleBackspace,
     reset,
   };
 }

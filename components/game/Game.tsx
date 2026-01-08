@@ -201,13 +201,19 @@ export function Game() {
     [activatePowerUp, gameState.combo, gameState.activePowerUps]
   );
 
-  const { currentInput, targetMonsterId, matchingMonster, reset: resetInput } =
-    useTypingInput({
-      monsters,
-      onWordComplete: handleWordComplete,
-      onCorrectCharacter: handleCorrectCharacter,
-      isActive: gameState.status === "playing",
-    });
+  const {
+    currentInput,
+    targetMonsterId,
+    matchingMonster,
+    handleCharacterInput,
+    handleBackspace,
+    reset: resetInput,
+  } = useTypingInput({
+    monsters,
+    onWordComplete: handleWordComplete,
+    onCorrectCharacter: handleCorrectCharacter,
+    isActive: gameState.status === "playing",
+  });
 
   const handleGameUpdate = useCallback(
     (deltaTime: number) => {
@@ -442,6 +448,9 @@ export function Game() {
         <InputDisplay
           currentInput={currentInput}
           targetWord={matchingMonster?.word ?? null}
+          isActive={gameState.status === "playing"}
+          onInput={handleCharacterInput}
+          onBackspace={handleBackspace}
         />
       </motion.div>
     </div>
