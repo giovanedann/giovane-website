@@ -86,6 +86,7 @@ export function Game() {
     performanceMultiplier: adaptiveState.currentMultiplier,
     currentScore: gameState.score,
     monsterCount: monsters.length,
+    layeredMonsterCount: monsters.filter((m) => m.layers > 1).length,
     onSpawn: handleSpawn,
   });
 

@@ -13,6 +13,7 @@ interface UseMonsterSpawnerOptions {
   performanceMultiplier: number;
   currentScore: number;
   monsterCount: number;
+  layeredMonsterCount: number;
   onSpawn: (monster: Monster) => void;
 }
 
@@ -53,12 +54,20 @@ function shouldSpawnGibberish(score: number): boolean {
   return Math.random() < chance;
 }
 
+function getLayerSpeedMultiplier(layers: number): number {
+  if (layers <= 1) return 1;
+  if (layers === 2) return 0.75;
+  if (layers === 3) return 0.6;
+  return Math.max(0.3, 1 - layers * 0.1);
+}
+
 export function useMonsterSpawner({
   gameWidth,
   skillLevel,
   performanceMultiplier,
   currentScore,
   monsterCount,
+  layeredMonsterCount,
   onSpawn,
 }: UseMonsterSpawnerOptions) {
   const lastSpawnRef = useRef<number>(0);
@@ -73,7 +82,9 @@ export function useMonsterSpawner({
       let words: string[];
       let isGibberish = false;
 
-      const layers = spawnGibberish ? 1 : getMaxLayers(elapsedTime, config.maxLayers);
+      const hasLayeredMonster = layeredMonsterCount > 0;
+      const baseLayers = spawnGibberish ? 1 : getMaxLayers(elapsedTime, config.maxLayers);
+      const layers = hasLayeredMonster ? 1 : baseLayers;
 
       if (spawnGibberish) {
         word = getGibberishWord(5, 10);
@@ -104,7 +115,7 @@ export function useMonsterSpawner({
         words,
         x,
         y: -30,
-        speed: getMonsterSpeed(skillLevel, elapsedTime, performanceMultiplier),
+        speed: getMonsterSpeed(skillLevel, elapsedTime, performanceMultiplier) * getLayerSpeedMultiplier(layers),
         layers,
         currentLayer: layers,
         type: "basic",
@@ -114,7 +125,7 @@ export function useMonsterSpawner({
 
       onSpawn(monster);
     },
-    [gameWidth, skillLevel, performanceMultiplier, currentScore, onSpawn]
+    [gameWidth, skillLevel, performanceMultiplier, currentScore, layeredMonsterCount, onSpawn]
   );
 
   const spawnPowerUp = useCallback(
@@ -159,7 +170,7 @@ export function useMonsterSpawner({
   const trySpawnPowerUp = useCallback(
     (currentTime: number, elapsedTime: number) => {
       const config = getAdaptiveDifficultyConfig(skillLevel, elapsedTime, performanceMultiplier);
-      const powerUpInterval = config.spawnInterval * 1.5;
+      const powerUpInterval = config.spawnInterval;
 
       if (currentTime - lastPowerUpSpawnRef.current >= powerUpInterval) {
         if (Math.random() < config.powerUpChance) {
