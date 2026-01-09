@@ -177,7 +177,6 @@ import { motion } from "motion/react";
 - [ ] Performance optimization (Core Web Vitals)
 - [ ] Accessibility audit (a11y)
 - [ ] Mobile responsiveness
-- [ ] Dark/light mode toggle
 - [ ] Analytics setup (Vercel Analytics or Plausible)
 - [ ] Final SEO audit
 
