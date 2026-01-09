@@ -33,6 +33,7 @@ import { GameOverScreen } from "./GameOverScreen";
 import { PowerUpEffects } from "./PowerUpEffects";
 import { BossWarning } from "./BossWarning";
 import { BossVictory } from "./BossVictory";
+import { Leaderboard } from "./Leaderboard";
 
 const GAME_HEIGHT = 650;
 const PERFORMANCE_UPDATE_INTERVAL = 5000;
@@ -69,6 +70,7 @@ export function Game() {
   const [screenShake, setScreenShake] = useState(false);
   const [nukeTriggered, setNukeTriggered] = useState(false);
   const [bossState, setBossState] = useState<BossState>(DEFAULT_BOSS_STATE);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -520,6 +522,7 @@ export function Game() {
               <StartScreen
                 highScore={gameState.highScore}
                 onStart={startGame}
+                onViewLeaderboard={() => setShowLeaderboard(true)}
               />
             )}
 
@@ -531,7 +534,19 @@ export function Game() {
                 monstersKilled={gameState.monstersKilled}
                 maxCombo={gameState.maxCombo}
                 elapsedTime={gameState.elapsedTime}
+                skillLevel={gameState.skillLevel}
                 onRestart={() => startGame(gameState.skillLevel)}
+                onViewLeaderboard={() => setShowLeaderboard(true)}
+              />
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {showLeaderboard && (
+              <Leaderboard
+                gameId="typing-roguelike"
+                onClose={() => setShowLeaderboard(false)}
+                currentSkillLevel={gameState.skillLevel}
               />
             )}
           </AnimatePresence>

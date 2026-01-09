@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 interface StartScreenProps {
   highScore: number;
   onStart: (skillLevel: SkillLevel) => void;
+  onViewLeaderboard: () => void;
 }
 
 const SKILL_OPTIONS: {
@@ -38,7 +39,7 @@ const SKILL_OPTIONS: {
   },
 ];
 
-export function StartScreen({ highScore, onStart }: StartScreenProps) {
+export function StartScreen({ highScore, onStart, onViewLeaderboard }: StartScreenProps) {
   const [selectedSkill, setSelectedSkill] = useState<SkillLevel>("intermediate");
 
   return (
@@ -144,6 +145,7 @@ export function StartScreen({ highScore, onStart }: StartScreenProps) {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
+          className="space-y-3"
         >
           <Button
             size="lg"
@@ -151,6 +153,15 @@ export function StartScreen({ highScore, onStart }: StartScreenProps) {
             className="w-full text-lg"
           >
             Start Game
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={onViewLeaderboard}
+            className="w-full text-lg gap-2"
+          >
+            <Trophy className="h-5 w-5" />
+            Leaderboard
           </Button>
         </motion.div>
 

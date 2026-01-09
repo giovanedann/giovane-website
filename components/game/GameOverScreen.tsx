@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Trophy, Target, Zap, RotateCcw, Timer } from "lucide-react";
+import { ScoreSubmission } from "./ScoreSubmission";
+import type { SkillLevel } from "./types";
 
 interface GameOverScreenProps {
   score: number;
@@ -11,7 +13,9 @@ interface GameOverScreenProps {
   monstersKilled: number;
   maxCombo: number;
   elapsedTime: number;
+  skillLevel: SkillLevel;
   onRestart: () => void;
+  onViewLeaderboard: () => void;
 }
 
 function formatTime(ms: number): string {
@@ -28,7 +32,9 @@ export function GameOverScreen({
   monstersKilled,
   maxCombo,
   elapsedTime,
+  skillLevel,
   onRestart,
+  onViewLeaderboard,
 }: GameOverScreenProps) {
   return (
     <motion.div
@@ -115,6 +121,23 @@ export function GameOverScreen({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
+          className="mb-6 p-4 rounded-lg bg-card border border-border"
+        >
+          <ScoreSubmission
+            gameId="typing-roguelike"
+            score={score}
+            skillLevel={skillLevel}
+            monstersKilled={monstersKilled}
+            maxCombo={maxCombo}
+            elapsedTimeMs={elapsedTime}
+            onViewLeaderboard={onViewLeaderboard}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
         >
           <Button
             size="lg"
