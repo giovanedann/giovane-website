@@ -5,6 +5,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getPostBySlug, getPostSlugs, formatDate } from "@/lib/posts";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { FloatingSocials } from "@/components/blog/floating-socials";
+import { LikeButton } from "@/components/blog/like-button";
+import { CommentsSection } from "@/components/blog/comments-section";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -87,6 +89,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         <div className="prose prose-invert prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-foreground prose-a:underline prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-secondary prose-pre:border prose-pre:border-border">
           <MDXRemote source={post.content} components={mdxComponents} />
+        </div>
+
+        <div className="mt-12 border-t border-border pt-8">
+          <LikeButton slug={slug} />
+        </div>
+
+        <div className="mt-12 border-t border-border pt-8">
+          <CommentsSection slug={slug} />
         </div>
       </article>
       <FloatingSocials />
