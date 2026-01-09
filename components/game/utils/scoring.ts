@@ -1,4 +1,5 @@
-import { ScoreResult, ActivePowerUp } from "../types";
+import { ScoreResult, ActivePowerUp, SkillLevel } from "../types";
+import { getDeviceFingerprint } from "@/lib/fingerprint";
 
 export function calculateScore(
   wordLength: number,
@@ -28,18 +29,32 @@ export function calculateScore(
   };
 }
 
-const HIGH_SCORE_KEY = "typing-game-high-score";
-
-export function getHighScore(): number {
-  if (typeof window === "undefined") return 0;
-  const stored = localStorage.getItem(HIGH_SCORE_KEY);
-  return stored ? parseInt(stored, 10) : 0;
+interface BestScoreResponse {
+  bestScore: number | null;
+  skillLevel: SkillLevel;
 }
 
-export function setHighScore(score: number): void {
-  if (typeof window === "undefined") return;
-  const current = getHighScore();
-  if (score > current) {
-    localStorage.setItem(HIGH_SCORE_KEY, score.toString());
+export async function fetchBestScore(
+  gameId: string,
+  skillLevel: SkillLevel
+): Promise<number> {
+  try {
+    const fingerprint = await getDeviceFingerprint();
+    const response = await fetch(
+      `/api/games/${gameId}/my-best?skillLevel=${skillLevel}`,
+      {
+        headers: {
+          "x-device-fingerprint": fingerprint,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const data: BestScoreResponse = await response.json();
+      return data.bestScore ?? 0;
+    }
+  } catch (error) {
+    console.error("Failed to fetch best score:", error);
   }
+  return 0;
 }

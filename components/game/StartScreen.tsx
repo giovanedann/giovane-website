@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Keyboard, Heart, Zap, Trophy } from "lucide-react";
@@ -9,6 +8,8 @@ import { cn } from "@/lib/utils";
 
 interface StartScreenProps {
   highScore: number;
+  selectedSkillLevel: SkillLevel;
+  onSkillLevelChange: (skillLevel: SkillLevel) => void;
   onStart: (skillLevel: SkillLevel) => void;
   onViewLeaderboard: () => void;
 }
@@ -39,8 +40,13 @@ const SKILL_OPTIONS: {
   },
 ];
 
-export function StartScreen({ highScore, onStart, onViewLeaderboard }: StartScreenProps) {
-  const [selectedSkill, setSelectedSkill] = useState<SkillLevel>("intermediate");
+export function StartScreen({
+  highScore,
+  selectedSkillLevel,
+  onSkillLevelChange,
+  onStart,
+  onViewLeaderboard,
+}: StartScreenProps) {
 
   return (
     <motion.div
@@ -79,10 +85,10 @@ export function StartScreen({ highScore, onStart, onViewLeaderboard }: StartScre
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 + index * 0.05 }}
-                onClick={() => setSelectedSkill(option.level)}
+                onClick={() => onSkillLevelChange(option.level)}
                 className={cn(
                   "p-3 rounded-lg border-2 transition-all text-left",
-                  selectedSkill === option.level
+                  selectedSkillLevel === option.level
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50"
                 )}
@@ -149,7 +155,7 @@ export function StartScreen({ highScore, onStart, onViewLeaderboard }: StartScre
         >
           <Button
             size="lg"
-            onClick={() => onStart(selectedSkill)}
+            onClick={() => onStart(selectedSkillLevel)}
             className="w-full text-lg"
           >
             Start Game

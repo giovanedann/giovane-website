@@ -19,7 +19,7 @@ import { useGameLoop } from "./hooks/useGameLoop";
 import { useTypingInput } from "./hooks/useTypingInput";
 import { useMonsterSpawner } from "./hooks/useMonsterSpawner";
 import { usePowerUps } from "./hooks/usePowerUps";
-import { calculateScore, getHighScore, setHighScore } from "./utils/scoring";
+import { calculateScore, fetchBestScore } from "./utils/scoring";
 import {
   updatePerformanceMetrics,
   updateDifficultyMultiplier,
@@ -52,7 +52,7 @@ export function Game() {
   const [gameState, setGameState] = useState<GameState>({
     status: "idle",
     score: 0,
-    highScore: getHighScore(),
+    highScore: 0,
     lives: DEFAULT_GAME_CONFIG.initialLives,
     combo: 0,
     maxCombo: 0,
@@ -64,6 +64,13 @@ export function Game() {
     skillLevel: "intermediate",
     performanceMetrics: DEFAULT_PERFORMANCE_METRICS,
   });
+  const [selectedSkillLevel, setSelectedSkillLevel] = useState<SkillLevel>("intermediate");
+
+  useEffect(() => {
+    fetchBestScore("typing-roguelike", selectedSkillLevel).then((best) => {
+      setGameState((prev) => ({ ...prev, highScore: best }));
+    });
+  }, [selectedSkillLevel]);
 
   const [monsters, setMonsters] = useState<MonsterType[]>([]);
   const monstersRef = useRef<MonsterType[]>([]);
@@ -386,10 +393,6 @@ export function Game() {
 
           const newStatus = newLives <= 0 ? "gameOver" : state.status;
 
-          if (newStatus === "gameOver") {
-            setHighScore(state.score);
-          }
-
           const now = Date.now();
           const hasComboSaver = state.activePowerUps.some(
             (p) => p.type === "comboSaver" && p.expiresAt > now
@@ -445,10 +448,10 @@ export function Game() {
       setAdaptiveState(DEFAULT_ADAPTIVE_STATE);
       setBossState(DEFAULT_BOSS_STATE);
 
-      setGameState({
+      setGameState((prev) => ({
         status: "playing",
         score: 0,
-        highScore: getHighScore(),
+        highScore: prev.highScore,
         lives: DEFAULT_GAME_CONFIG.initialLives,
         combo: 0,
         maxCombo: 0,
@@ -462,7 +465,7 @@ export function Game() {
           ...DEFAULT_PERFORMANCE_METRICS,
           gameStartTime: now,
         },
-      });
+      }));
     },
     [resetSpawner, resetGameLoop, resetInput]
   );
@@ -521,6 +524,8 @@ export function Game() {
             {gameState.status === "idle" && (
               <StartScreen
                 highScore={gameState.highScore}
+                selectedSkillLevel={selectedSkillLevel}
+                onSkillLevelChange={setSelectedSkillLevel}
                 onStart={startGame}
                 onViewLeaderboard={() => setShowLeaderboard(true)}
               />
