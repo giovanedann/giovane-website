@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Game } from "@/components/game";
 
 export const metadata: Metadata = {
-  title: "Type to Survive | Giovane Daniel",
+  title: "Type to Survive | Giovane Saes",
   description:
     "A typing roguelike game. Type words to destroy monsters before they reach the bottom. How long can you survive?",
 };

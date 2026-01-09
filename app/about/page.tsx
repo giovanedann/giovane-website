@@ -7,9 +7,9 @@ import { TechnologiesSection } from "@/components/portfolio/technologies-section
 import { EducationSection } from "@/components/portfolio/education-section";
 
 export const metadata: Metadata = {
-  title: "About | Giovane Daniel",
+  title: "About | Giovane Saes",
   description:
-    "Learn about Giovane Daniel - Software Engineer based in São Paulo, Brazil. Professional experience, technologies, and education.",
+    "Learn about Giovane Saes - Software Engineer based in São Paulo, Brazil. Professional experience, technologies, and education.",
 };
 
 export default function AboutPage() {
