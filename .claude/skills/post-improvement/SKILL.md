@@ -24,6 +24,49 @@ Apply fixes to a blog post based on review feedback while preserving the author'
 - Reorganize bullet points for clarity
 - Break up long paragraphs if they cover multiple ideas
 
+### Post Structure Enhancements (Auto-apply)
+
+Add these structural elements to improve readability:
+
+**1. TL;DR + What to Expect (at the top, after frontmatter):**
+```markdown
+> **TL;DR:** One sentence summary of the post's main message.
+>
+> **What to expect:**
+> - Topic 1
+> - Topic 2
+> - Topic 3
+```
+
+**2. Horizontal rules for visual chapters:**
+- Add `---` after the Introduction section
+- Add `---` before the Conclusion section
+
+**3. Pull quotes for impactful sentences:**
+- Find 1-2 powerful sentences and convert to blockquotes
+- Example: `> How the hell would I replicate that? It's impossible.`
+
+**4. Question/Answer formatting:**
+- Use italics for rhetorical questions: `*"Oh, so I can't do X, right?"*`
+- Follow with a punchy answer on the next line
+
+**5. Punchier conclusions:**
+- Use line breaks between short, impactful sentences:
+```markdown
+Your path is yours.
+
+Not better. Not worse. Just different.
+
+And that's okay.
+```
+
+**6. Call to action before farewell:**
+```markdown
+If this post was helpful, consider leaving a like. It helps me know what resonates with you.
+
+Farewell.
+```
+
 ### Visual Elements (When Reasonable)
 
 Add visual variety to break up walls of text, but only where it makes sense:
@@ -32,21 +75,63 @@ Add visual variety to break up walls of text, but only where it makes sense:
 - **Numbered lists** → For sequential steps or ordered items
 - **Code blocks** → For commands, file paths, or technical references
 - **Blockquotes** → For key insights or memorable quotes from the post
-- **Horizontal rules** → For clear section breaks (use sparingly)
+- **Horizontal rules** → For visual chapter breaks (after intro, before conclusion)
+- **Side-by-side comparisons** → Use bold labels with bullet lists (NOT tables)
+- **Italics for rhetorical questions** → Makes Q&A sections stand out
+
+**IMPORTANT: Do NOT use markdown tables in MDX files.** They don't render correctly. For comparisons, use:
+```markdown
+**Option A:**
+- Point 1
+- Point 2
+
+**Option B:**
+- Point 1
+- Point 2
+```
+Or inline: `**Week 1:** Study only. **Week 2:** Games only.`
 
 **When to add visual elements:**
 
-- Lists of 3+ related items → convert to bullet points
-- Step-by-step processes → convert to numbered lists
+- Lists of 3+ related items → convert to bullet points with bold labels
+- Step-by-step processes or timelines → convert to numbered lists
 - Technical terms, commands, or paths → use inline code or code blocks
 - Key takeaways or memorable phrases → consider blockquotes
+- Comparisons or before/after scenarios → use side-by-side bullet lists with bold labels
+- Sequential events with dates/times → consider timeline format with bold timestamps
 
 **When NOT to add:**
 
 - Don't force visual elements where text flows naturally
 - Don't add code blocks for non-technical content
 - Don't over-use blockquotes (max 1-2 per post)
+- Don't use markdown tables (they break in MDX)
 - If the post doesn't have content that fits, don't add any
+
+### Text Enhancement
+
+Beyond grammar, improve readability while preserving voice:
+
+- **Tighten wordy sentences** → Remove unnecessary words without changing meaning
+- **Improve flow** → Add transition words between paragraphs when needed
+- **Clarify confusing sentences** → Reword for clarity while keeping the author's style
+- **Split run-on sentences** → Break into shorter sentences if too long
+- **Combine choppy sentences** → Merge if too fragmented
+
+### Redundancy Removal (Auto-apply)
+
+Actively identify and fix redundant content:
+
+- **Repeated phrases** → If the same phrase appears multiple times (e.g., "I will give you an example" used twice), vary the phrasing
+- **Redundant words** → Remove words that don't add meaning (e.g., "in fact" when it's obvious, "actually" when unnecessary)
+- **Saying the same thing twice** → If two sentences express the same idea, merge or remove one
+- **Filler phrases** → Remove phrases like "to be honest", "basically", "kind of" unless they add personality
+- **Circular explanations** → If the author explains something, then re-explains it immediately, keep only the clearer version
+
+**Examples of redundancy fixes:**
+- "I will give you an example" (first) + "I will give you an example" (second) → Keep first, change second to "Here's another example" or "For instance"
+- "That's life: X. That's just how life is." → Keep only one
+- "I think, in my opinion" → Just "I think" or "In my opinion"
 
 ### Image Suggestions (Non-demanding)
 
