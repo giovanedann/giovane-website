@@ -5,14 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { FormattedDate } from "@/components/ui/formatted-date";
 import type { PostCard } from "@/types";
 
 interface ExpandableBlogCardProps {
@@ -41,7 +34,7 @@ export const ExpandableBlogCard = ({ post }: ExpandableBlogCardProps) => {
               layout="position"
               className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground"
             >
-              <span>{formatDate(post.date)}</span>
+              <FormattedDate date={post.date} />
               <span>·</span>
               <span>{post.readingTime}</span>
             </motion.div>

@@ -2,8 +2,9 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getPostBySlug, getPostSlugs, formatDate } from "@/lib/posts";
+import { getPostBySlug, getPostSlugs } from "@/lib/posts";
 import { mdxComponents } from "@/components/blog/mdx-components";
+import { FormattedDate } from "@/components/ui/formatted-date";
 import { FloatingSocials } from "@/components/blog/floating-socials";
 import { LikeButton } from "@/components/blog/like-button";
 import { CommentsSection } from "@/components/blog/comments-section";
@@ -65,13 +66,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {post.title}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-muted-foreground">
-            <time dateTime={post.date}>{formatDate(post.date)}</time>
+            <time dateTime={post.date}><FormattedDate date={post.date} /></time>
             <span>·</span>
             <span>{post.readingTime}</span>
             {post.updated && (
               <>
                 <span>·</span>
-                <span>Updated {formatDate(post.updated)}</span>
+                <span>Updated <FormattedDate date={post.updated} /></span>
               </>
             )}
           </div>
