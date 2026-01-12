@@ -90,7 +90,7 @@ export function Monster({
             : monster.isPowerUp
             ? "bg-gradient-to-b from-amber-500/20 to-amber-600/20 border-amber-500"
             : isTarget
-            ? "bg-primary/20 border-primary"
+            ? "bg-card/90 border-primary shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
             : urgency === "urgent"
             ? "bg-red-500/20 border-red-500"
             : urgency === "warning"
@@ -174,6 +174,8 @@ export function Monster({
                     ? rarityColors.text
                     : monster.isPowerUp
                     ? "text-amber-400"
+                    : isTarget
+                    ? "text-muted-foreground"
                     : "text-foreground"
                 )}
               >
