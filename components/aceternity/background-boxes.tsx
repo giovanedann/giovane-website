@@ -9,8 +9,8 @@ export interface BackgroundBoxesProps {
 }
 
 const BoxesCore = ({ className, ...rest }: BackgroundBoxesProps) => {
-  const rows = new Array(75).fill(1);
-  const cols = new Array(50).fill(1);
+  const rows = new Array(150).fill(1);
+  const cols = new Array(75).fill(1);
   const colors = [
     "#ffffff",
     "#f5f5f5",
