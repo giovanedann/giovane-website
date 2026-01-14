@@ -46,7 +46,7 @@ export function AboutSection() {
         >
           I'm a Product Engineer who loves building things end-to-end. From crafting
           intuitive interfaces to architecting distributed systems, I thrive on the full
-          product cycle—shipping solutions that solve real problems and scale.
+          product cycle: shipping solutions that solve real problems and scale, with a beautiful design.
         </motion.p>
 
         <motion.p
@@ -57,10 +57,10 @@ export function AboutSection() {
           className="mt-4 text-lg leading-relaxed text-muted-foreground"
         >
           I thrive on complex challenges. What brought me to programming was automating
-          Excel spreadsheets—first with formulas, then with VBA. My Mechanical Engineering
+          Excel spreadsheets, first with formulas, then with VBA. My Mechanical Engineering
           background, especially the physics and math, didn't lead me here, but it made me
           better at it. Calculating air resistance or modeling systems taught me to break
-          down problems logically—a skill I apply to every technical challenge today.
+          down problems logically, a skill I apply to every technical challenge today.
         </motion.p>
 
         <motion.p
