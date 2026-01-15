@@ -2,6 +2,7 @@ import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
 import Link from "next/link";
 import { CodeBlock } from "./code-block";
+import { TokenDisplay } from "./token-display";
 
 export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
@@ -60,4 +61,5 @@ export const mdxComponents: MDXComponents = {
   strong: ({ children }) => (
     <strong className="font-semibold text-foreground">{children}</strong>
   ),
+  TokenDisplay,
 };
