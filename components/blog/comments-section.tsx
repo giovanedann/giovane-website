@@ -80,7 +80,7 @@ export function CommentsSection({ slug }: CommentsSectionProps) {
         </p>
         <div className="flex flex-wrap gap-3">
           <a
-            href="https://linkedin.com/in/giovanesaes"
+            href="https://www.linkedin.com/in/giovanesaesdev/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
