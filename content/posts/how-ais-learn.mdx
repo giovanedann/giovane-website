@@ -11,11 +11,15 @@ published: true
 > **TL;DR:** AIs don't think. They learn patterns from data through tokenization, parameters, and training methods like RLHF. Understanding this helps you work with them more effectively.
 >
 > **What to expect:**
-> - What tokens and parameters actually are
+>
+> - What tokens, context windows, and parameters actually are
 > - The difference between LMs, LLMs, and Foundation Models
+> - What temperature is and why it matters
 > - How supervised, unsupervised, and self-supervised learning work
 > - What RLHF does and why it matters
 > - Why data quality beats quantity
+
+*Yes, the images have Gemini watermarks. No, I don't pay for Gemini Pro. Claude Max is already taking all my AI budget.*
 
 ## Introduction
 
@@ -53,7 +57,7 @@ Language Models and Large Language Models only differ in size. While LMs (Langua
 
 So, the difference between them is only **scale**.
 
-However, LLMs are not an exact term, because the amount of parameters that is considered large today can be considered tiny tomorrow.
+However, LLM is not an exact term, because the amount of parameters that is considered large today can be considered tiny tomorrow.
 
 Foundation Models are a little different. While LMs and LLMs are trained only for texts, Foundation Models are trained for everything else: video, image, audio, etc.
 
@@ -65,12 +69,35 @@ The basic unit of a language model is a **token**. A token can be a character, a
 
 Here is an example:
 
-The phrase "Giovane is an awesome software engineer!" would be tokenized differently for Gemini 3 and GPT-5.
+The phrase **"Giovane is an awesome software engineer!"** would be tokenized differently for Gemini 3 and GPT-5.
 
-```
-GPT-5    -> "Gi", "ovane", " is", " an", " awesome", " software", " engineer", "!"
-Gemini 3 -> "Giov", "ane", " is", " an", " awesome", " software", " engineer", "!"
-```
+<TokenDisplay
+  label="GPT-5"
+  tokens={[
+    "Gi",
+    "ovane",
+    " is",
+    " an",
+    " awesome",
+    " software",
+    " engineer",
+    "!",
+  ]}
+/>
+
+<TokenDisplay
+  label="Gemini 3"
+  tokens={[
+    "Giov",
+    "ane",
+    " is",
+    " an",
+    " awesome",
+    " software",
+    " engineer",
+    "!",
+  ]}
+/>
 
 They look similar, but you can notice that my name was split differently between the 2 models. The process of splitting the phrases into tokens is called **tokenization**.
 
@@ -80,7 +107,7 @@ There are three main reasons:
 
 1. **Meaningfulness**: Compared to characters, tokens allow models to break words into meaningful components. For example, "cooking" will be split into "cook" and "ing", with both components carrying meaning.
 2. **Uniqueness**: There are fewer unique tokens than unique words.
-3. **Understanding**: With invented words like "Midjourneying", "Midjourney" and "ing" helps the model to understand the structure of the word and its meaning, even if it's not an official word.
+3. **Understanding**: With invented words like "Midjourneying", splitting it into "Midjourney" and "ing" helps the model understand the structure and meaning, even if it's not an official word.
 
 ## Parameters: The Model's Knowledge
 
@@ -124,7 +151,7 @@ That is good for: anomaly detection, customer segmentation, trends.
 
 In self-supervised learning, there's no human intervention at all.
 
-The model reads a sentence, like "The book is on the []", it guesses "table", checks if it was correct, and adjusts its parameters.
+The model reads a sentence, like "The book is on the []", it guesses "table", checks if it was correct, and adjusts its parameters. This process is called **next-token prediction**, and it's the core mechanism behind how modern LLMs generate text.
 
 Since they don't require any labeled data, it's possible to construct a massive amount of training data by reading data from blog posts, wikis, comments, allowing models to scale up to become LLMs.
 
@@ -140,6 +167,47 @@ The name is pretty suggestive. Humans "finetune" the models providing human feed
 
 For example, we ask the AI a question, and we have 6 answers, humans rank them, and the AI learns from that. It's simple, but must be rigorous, since that's one of the final steps before turning a model safe for public use.
 
+![RLHF process showing humans ranking AI responses](/images/blog/how-ais-learn/rhlf.jpg)
+
+---
+
+## Next-Token Prediction
+
+The next-token prediction is the core engine of an LLM. It is the statistical process of guessing which piece of text (token) is most likely to come next based on the context.
+
+![Next-token prediction process](/images/blog/how-ais-learn/next-token-prediction.jpg)
+
+We can separate the process in three steps:
+
+1. Context Window: the model looks at the prompt (e.g. "The capital of France is..."), as a sequence of numerical IDs.
+2. Probability Distribution: the model consults its parameters to calculate the probability of every token in its knowledge base. For "France is...", the probability of the next word being "Paris" is 90%, "Lyon" is 2%, and "Banana" is 0.001%. That's why the model picks Paris.
+3. Sampling: the model selects the next token (based on probability), appends it to the sequence, and repeats the process until the output is finished.
+
+## Temperature: Controlling Randomness
+
+When performing the next-token prediction, the model calculates the probability of the next word. It usually has one clear winner and several losers (i.e. the capital of France example).
+
+The **temperature** changes how a model chooses between them.
+
+Low temperatures (e.g., 0.1 ~ 0.2) usually make the model "boring". Because it will always pick the token with the most probability, so, the model is most likely going to return the same thing for the same prompts.
+High temperatures (e.g., 0.8 ~ 1+) usually make the model more "creative". On high temperatures, the "winner" is still favored, but the "losers" have a much higher chance of being picked, making the output unpredictable.
+
+![Temperature comparison: low vs high](/images/blog/how-ais-learn/temperature.jpg)
+
+## Context Window
+
+We can think of the context window as the model short-term memory. It is the maximum amount of text (measured in tokens) that the model can memorize at once to make its next prediction.
+
+Let's take ChatGPT as example.
+
+When we chat with it, it doesn't "remember" our past conversations. The entire conversation is sent back to it.
+
+As long as the conversation fits within the model Context Window, it can "remember" everything discussed.
+
+Usually, the larger the window, the better the model outputs.
+
+![Context window visualization](/images/blog/how-ais-learn/context-window.jpg)
+
 ## Data Quality: Garbage In, Garbage Out
 
 What matters most for AIs is the data they're trained with.
@@ -151,6 +219,8 @@ But, if we train a model with quality data, it can be really useful for complex 
 ## Putting It All Together
 
 So, here's how everything connects: raw text gets broken into tokens, which the model processes through its parameters. During self-supervised learning, the model learns to predict the next token by reading massive amounts of data. Then RLHF refines its behavior to align with human preferences. Throughout this pipeline, data quality determines the ceiling of what the model can achieve.
+
+![AI training pipeline](/images/blog/how-ais-learn/ai-training.jpg)
 
 ---
 
