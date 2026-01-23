@@ -2,6 +2,20 @@
 
 import { motion, useReducedMotion } from "motion/react";
 
+function parseHighlight(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={index} className="font-semibold text-foreground">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
 interface TimelineItem {
   title: string;
   company: string;
@@ -57,7 +71,7 @@ export function Timeline({ items }: TimelineProps) {
                       key={i}
                       className="text-sm text-muted-foreground list-inside list-disc"
                     >
-                      {highlight}
+                      {parseHighlight(highlight)}
                     </li>
                   ))}
                   {item.period.includes("Present") && (
