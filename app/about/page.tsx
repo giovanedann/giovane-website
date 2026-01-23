@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AboutSection } from "@/components/portfolio/about-section";
 import { ExperienceSection } from "@/components/portfolio/experience-section";
+import { ProjectsSection } from "@/components/portfolio/projects-section";
 import { TechnologiesSection } from "@/components/portfolio/technologies-section";
 import { EducationSection } from "@/components/portfolio/education-section";
 
@@ -26,6 +27,7 @@ export default function AboutPage() {
 
         <AboutSection />
         <ExperienceSection />
+        <ProjectsSection />
         <TechnologiesSection />
         <EducationSection />
       </div>
