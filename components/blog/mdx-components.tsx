@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CodeBlock } from "./code-block";
 import { TokenDisplay } from "./token-display";
+import { ServerlessExecution, ServerlessScaling } from "./serverless";
 
 export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
@@ -62,4 +63,6 @@ export const mdxComponents: MDXComponents = {
     <strong className="font-semibold text-foreground">{children}</strong>
   ),
   TokenDisplay,
+  ServerlessExecution,
+  ServerlessScaling,
 };

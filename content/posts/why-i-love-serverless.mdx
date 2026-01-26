@@ -1,0 +1,347 @@
+---
+title: "Why I Love Serverless"
+short_description: "Tired of setting up VPSs, configuring VPCs and all those downsides? Let's deep dive Serverless Architectures."
+long_description: "Serverless doesn't mean no servers, it means not YOUR servers. Let's break down what serverless is, how it works, and when to use it. Spoiler: you can't run Clawdbot on it, sorry to disappoint."
+date: "2026-01-26"
+tags:
+  [
+    "serverless",
+    "aws",
+    "cloudflare",
+    "lambda",
+    "architecture",
+    "backend",
+    "engineering",
+    "software",
+  ]
+topics:
+  ["Serverless", "AWS", "Cloudflare", "Backend", "Engineering", "Software"]
+published: true
+---
+
+> **TL;DR:** Serverless lets you deploy code without managing servers. You pay only for what you use, it scales automatically, and it's perfect for side projects and MVPs. The trade-offs? Cold starts, vendor lock-in, and execution time limits. Not a silver bullet, but a game-changer for the right use cases. Spoiler: you can't run Clawdbot on it, sorry to disappoint.
+>
+> **What to expect:**
+>
+> - What serverless actually means (spoiler: there are still servers)
+> - How the execution and billing models work
+> - Why I start every new project with serverless
+> - The real downsides you need to know about
+> - When to use serverless vs a traditional VPS
+
+## Introduction
+
+When I started my journey as a Software Engineer, every time I wanted to start a new project, I ended up in the same limbo: deploying the API.
+
+Deploying front-end applications was easy, I just needed to push the code to GitHub and let GitHub Pages handle the rest, but how do I set up a server to run my API?
+
+VPSs, VPCs, Load Balancers, Security Groups, Certificates, PEM Keys, and all those things that I didn't have a clue about what they were.
+
+I was so lost, and I didn't know where to start.
+
+Then, I found out about **Serverless Architectures**.
+
+## What is a Serverless Architecture?
+
+The name might be confusing, because when you think about "x-less", usually it means "no x". In Serverless applications, you DO have a server, it's just not your responsibility to manage it.
+
+Serverless Architecture is, essentially, an abstraction. Just as high-level programming languages abstract away memory management, Serverless architectures abstract away the operating system and hardware, you set up your code and let the provider handle the rest.
+
+The core pillars of a serverless are:
+
+- **Event-driven:** The code is triggered by events, like HTTP requests, file uploads, database changes, etc.
+- **Ephemeral:** Containers are created on-demand and kept warm briefly (typically 5-15 minutes) before being destroyed. You don't manage their lifecycle.
+- **Cost-driven:** You pay for what you use. If you have a serverless function that is idle 90% of the time, you're not being charged for that idle time.
+
+Instead of setting up VPCs, PEM keys and security groups, Serverless architectures let you treat your API like a collection of functions. You give the provider the code, tell them when to run it, and they handle the heavy lifting of routing, security and scalability.
+
+---
+
+## How Serverless Works
+
+As I said before, serverless is event-driven, so it needs a trigger. Before we proceed, I need to tell you the concept of "warm" and "cold" containers.
+
+When you trigger a serverless function for the first time, the provider starts a "cold" container. This container is kept warm for a given amount of time (e.g. 10 minutes). If you hit the same function again, it will go to the same container, and use the same instance of the function. Otherwise, it will repeat the process.
+
+The process of starting a "cold" container is called a "cold start". Keep that in mind, because it's a key concept to understand the trade-offs and usecases of serverless.
+
+### The Execution Model
+
+Let's break down the steps, using AWS Lambda as the serverless provider.
+
+1. The Trigger: an event happens (e.g. HTTP request in your API Gateway, file upload on S3, message arrived on an SQS queue, etc.)
+2. The setup: the provider finds a "warm" container or starts a "cold" container
+3. The execution: the code runs, does its thing, and returns a response
+4. The teardown: the container stays "warm" for a given amount of time (e.g. 10 minutes), to see if more requests are coming, otherwise, it is destroyed.
+
+Here is something visual, for you to understand better, if that doesn't make sense yet:
+
+<ServerlessExecution />
+
+### The Billing Model
+
+Now that you understood how serverless works, let's talk about the billing model.
+
+Let's make an analogy to a Parking Lot.
+
+-> Traditional way: when you pay for a VPS, you rent a permanent parking spot monthly, whether your car is there or not. So, it doesn't matter if your code is running or not, you're going to be charged the same amount.
+-> Serverless way: you only pay for the exact time that your car is parked. That means you save a lot of money, in most of the cases.
+
+### The Mindset Shift
+
+When working with serverless, you need to think differently. Instead of building a house, you need to start thinking about ordering LEGO kits.
+
+If you work with microservices, it's not a big deal to deal with serverless, but if you're used to building monolithic applications, it's a different story.
+
+On serverless, instead of a giant API, you have small and independent functions. Of course, you're not going to have a repository in GitHub per function, they can be in the same place, but when they are being executed, each one is independent. That means that **they don't share states**.
+
+### Handling State
+
+This is the most tricky part when working with serverless environments.
+
+Sometimes, on monoliths, you need to save variables with values, and those are used across the entire service.
+
+In serverless, you don't have that luxury, because each Lambda has its own scope of execution.
+
+Also, if you're using a traditional database like PostgreSQL or MySQL, you might run into connection exhaustion. Each Lambda opens its own connection, and if you have a traffic spike, you can easily hit the database connection limit. Tools like RDS Proxy, PlanetScale, or Neon handle this for you by pooling connections.
+
+---
+
+## Why Use Serverless?
+
+Serverless is not a silver bullet, but it can be a game-changer for many use cases.
+
+Every new project I start, I start with serverless, because it's so much easier to set up and deploy, also, they usually have REALLY GENEROUS free tiers.
+
+I will list the upsides of using serverless architecture, and I will try to justify why I love it.
+
+### Automatic Scalability
+
+First off, let's talk about scalability.
+
+Let's imagine a Kubernetes Cluster within a VPS, with a front-end, a back-end, and a database. Everything is good, until you start having a lot of traffic.
+
+Then, you need to set up another replica of your back-end, and you may also need to set up another replica of your front-end. Database scaling is its own beast (read replicas, connection pooling, maybe sharding).
+
+All good, until you double your users. Then, you need to set up a reverse proxy like Traefik or nginx to load balance traffic.
+
+Then, everything is fine, your application is good, but you run out of resources in your VPS. Then, you need to upgrade your VPS to the new tier to have more computing power.
+
+You have to do a lot more, but I'm already with headaches only talking about the Kubernetes part of the process.
+
+In serverless, you don't have to worry about that. You just set up your code, and let the provider handle the rest.
+
+If that's not clear enough, here is a visual component:
+
+<ServerlessScaling />
+
+### Cost Efficiency
+
+Having a VPS, usually costs you a fixed amount of money per month. Let's say, 5$. But you have 0 users, you're still setting up your application, and that will take 3 months to build the MVP. So, you just lost 15$ for nothing. In serverless, that would cost you 0.
+
+Even if you have to deploy your serverless environment and test it, it will cost you 0$. This is due to the model of "pay for what you use", thus, the **very generous free tiers**.
+
+There's 2 ways of charging for serverless:
+
+1. Pay per request
+2. Pay per execution time
+
+Let's take Cloudflare Workers and AWS Lambda free tiers as examples:
+-> Cloudflare Workers: $0 for the first 10M requests per month, and you have free 10ms of CPU time per invocation (I/O wait doesn't count).
+-> AWS Lambda: $0 for the first 1M requests per month, and 400GB-seconds of execution time per month.
+
+Then you might think: "Yeah but when I exceed that, must be really expensive".
+
+Well, sorry to disappoint you, but it is not. It's really cheap.
+
+If you pass the 10M requests on Cloudflare Workers, you are charged the high amount of $0.30 per 1M requests, and an additional $0.02 per additional million CPU milliseconds. In AWS Lambda, you are charged $0.20 per 1M requests, plus $0.0000166667 for every GB-second.
+
+On AWS you have different memory allocation for lambdas, and that makes the cost vary, but it's really, really cheap.
+
+### Reduced Operational Burden
+
+You don't need to care about updating Ubuntu versions, packages, security patches, thus, most providers handle the basic DDoS protection and firewalling by default.
+
+Also, you don't need to mind about certificates and those kind of things, which is a real pain in the ass.
+
+### Faster Time-to-Market
+
+When you push the updated code, you don't need to wait 30 minutes for your Docker image to be built, and 15 more minutes to your K8S cluster to be updated. You push it, run a CLI command, and it's live.
+
+### Built-in High Availability
+
+Some providers are multi-region by default. Cloudflare Workers and Vercel Edge Functions run globally with no extra setup. AWS Lambda requires you to explicitly deploy to each region, but it's still way easier than doing it yourself on a VPS.
+
+### Forces you to be a better engineer
+
+As we discussed in the pricing section, you pay for the time you use.
+
+This forces you to be a better engineer, because you need to optimize your code to be as fast as possible, and to use as little memory as possible. Also, you need to save as many requests as you can, because that will save you money.
+
+Let me give you an example, I am building [Plim](https://plim.app.br), a financial app for Brazilians. While building that, I saw that my dashboard made 10 requests to populate the charts that I have there.
+
+So, I consolidated those 10 API calls into a single endpoint that fetches all the data at once. Inside that endpoint, I run the database queries concurrently with `Promise.all`. That architectural change reduced my invocations (and costs) by 10x.
+
+Also, I used optimistic updates for almost every call, so I could update the UI without calling the API every time. That also saved me money, because I was only requesting data after the stale of the request was reached.
+
+So, working with serverless forces you to think about costs, and how to optimize things, and that's an excellent thing.
+
+---
+
+## The Downsides
+
+It was too good to be true right? All that stuff, no downsides, it seems to be perfect. Why should I use a VPS after all you told me about serverless?
+
+Well, my friend, in software engineering, there's no silver bullet. There's the right tool for the right task.
+
+Let's discuss a little bit about the downsides.
+
+### Cold Starts
+
+As I said before, serverless has "warm" and "cold" functions. When you trigger a serverless function for the first time, the provider starts a "cold" container. This container is kept warm for a given amount of time (e.g. 10 minutes). If you hit the same function again, it will go to the same container, and use the same instance of the function. Otherwise, it will repeat the process.
+
+The process of waiting for a function container to be ready is called a "cold start". You can mitigate it (provisioned concurrency, smaller bundles, lighter runtimes like Go), but you can't eliminate it entirely. Your users will occasionally wait.
+
+I mean, it's not a 40 minutes cold start, usually takes less than 1 second, but it's something to keep in mind. That's enough for a user to leave your application.
+
+### Vendor Lock-in
+
+When you use a VPS, it doesn't matter where that runs on, you just need to have Docker installed, and you're good to go. You can use any provider you want.
+
+In serverless, you often use provider's code. For example, your AWS Lambda might have a trigger when a file is uploaded, or when an SQS message arrives. In Cloudflare Workers, you might have a trigger on your R2 bucket, or on your D1 database.
+
+When you do that, you're not just writing code. You're tying your code to the provider. Usually, they have better integrations among their services, so moving from an AWS Lambda to a Cloudflare Worker, while still using S3 and SQS as tools, might be a pain in the ass.
+
+It isn't just a copy paste of code, it's a possible rewrite of your infrastructure and usecases logic.
+
+### Debugging Complexity
+
+Debugging monoliths is usually easy. You run the code, set up break points, point to your local database, and you're good to go. The code stops on the line, you go line-by-line, and see exactly what the variables hold, the logic, and all that, step by step.
+
+In Serverless, you don't have that. Your code is distributed between standalone functions, and they run on the provider, and it's notoriously hard to replicate the infrastructure to your local machine.
+
+A bug might happen only on a specific event (e.g. S3 file upload), and the way of debugging that is to set a lot of console.logs to your code only to see that a variable is undefined in CloudWatch.
+
+That said, there are tools that help. AWS SAM CLI and Serverless Offline let you run Lambda functions locally. Cloudflare has Wrangler, which simulates Workers on your machine. They're not perfect, but they make life a lot easier than deploying every change just to test it.
+
+### Execution Time Limits
+
+Serverless functions are sprinters, not marathon runners. They have a maximum execution time.
+
+AWS Lambda has a maximum execution time of 15 minutes. Cloudflare Workers have different limits depending on the context: 10ms CPU time on the free plan for HTTP requests, 30 seconds on paid plans, and up to 15 minutes for Cron Triggers.
+
+That means you can't use serverless for long-running tasks, like background jobs, or long-running processes like big data report generations or big JSON payloads processing.
+
+If you have a task that takes 20 minutes to process (like rendering a heavy video or a massive data migration), Serverless will literally kill your process halfway through. You can't just "let it run overnight."
+
+---
+
+## Serverless Providers
+
+We talked about them already, but there are a lot of providers that support Serverless computing.
+
+-> AWS Lambda
+-> Google Cloud Functions
+-> Azure Functions
+-> Supabase Edge Functions
+-> Cloudflare Workers
+-> Vercel Edge Functions
+
+And many more.
+
+I will give a really basic example of TypeScript code for AWS Lambda and Cloudflare Workers, both using the Hono framework.
+
+### AWS Lambda
+
+This is the classic one-function-per-endpoint approach. Each Lambda handles a single route, which keeps cold starts minimal since only the code you need gets loaded.
+
+```typescript
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+
+export const handler = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const userId = event.pathParameters?.id;
+
+  if (!userId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "User ID is required" }),
+    };
+  }
+
+  // Your business logic here
+  const user = { id: userId, name: "John Doe" };
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(user),
+  };
+};
+```
+
+### Cloudflare Workers
+
+With Workers, cold starts are nearly instant thanks to V8 isolates, so you can comfortably use a router like Hono to handle multiple routes in a single worker.
+
+```typescript
+import { Hono } from "hono";
+
+const app = new Hono();
+
+app.get("/", (c) => c.json({ message: "Hello from Workers!" }));
+
+app.get("/users/:id", async (c) => {
+  const id = c.req.param("id");
+  // Your business logic here
+  return c.json({ id, name: "John Doe" });
+});
+
+app.post("/users", async (c) => {
+  const body = await c.req.json();
+  // Create user logic
+  return c.json({ success: true, user: body }, 201);
+});
+
+export default app;
+```
+
+---
+
+## When to Use What
+
+If you're:
+
+- Building a side project or MVP
+- Have a bursty or unpredictable traffic
+- Have background tasks (e.g. email sending, image compressing, etc)
+- A solo dev who doesn't want to deal with the complexity infrastructure
+- Building an API
+
+Serverless might be the right choice for you.
+
+If you're:
+
+- Have a really high and constant traffic (100 requests per second, 24/7, will eventually cost more than the VPS monthly price)
+- Need persistent real-time connections (WebSockets work on serverless but have limitations due to ephemeral containers)
+- Have long-running processes
+- Need a lot of RAM
+- Run Clawdbot
+
+Then you better stick to a VPS.
+
+---
+
+## Conclusion
+
+I hope that helped you to understand the benefits of serverless computing, and when to use it.
+
+I'm not trying to say: use serverless always, but just give another point of view when building your applications.
+
+If you liked this post, leave a like and share it with your friends.
+
+If you have any questions, or if you want to share your experience with serverless computing, please leave a comment below.
+
+See you on the next post.
+
+Farewell!

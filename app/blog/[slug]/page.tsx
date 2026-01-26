@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypePrettyCode from "rehype-pretty-code";
 import { getPostBySlug, getPostSlugs } from "@/lib/posts";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { FormattedDate } from "@/components/ui/formatted-date";
@@ -89,7 +90,23 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         <div className="prose prose-invert prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-foreground prose-a:underline prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-secondary prose-pre:border prose-pre:border-border">
-          <MDXRemote source={post.content} components={mdxComponents} />
+          <MDXRemote
+            source={post.content}
+            components={mdxComponents}
+            options={{
+              mdxOptions: {
+                rehypePlugins: [
+                  [
+                    rehypePrettyCode,
+                    {
+                      theme: "dracula",
+                      keepBackground: true,
+                    },
+                  ],
+                ],
+              },
+            }}
+          />
         </div>
 
         <div className="mt-12 border-t border-border pt-8">
