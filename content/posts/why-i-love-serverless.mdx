@@ -146,7 +146,7 @@ There's 2 ways of charging for serverless:
 1. Pay per request
 2. Pay per execution time
 
-Let's take Cloudflare Workers and AWS Lambda free tiers as examples:
+Let's take Cloudflare Workers and AWS Lambda free tiers as examples (prices as of January 2026):
 - **Cloudflare Workers:** $0 for the first 10M requests per month, and you have free 10ms of CPU time per invocation (I/O wait doesn't count).
 - **AWS Lambda:** $0 for the first 1M requests per month, and 400GB-seconds of execution time per month.
 
@@ -249,7 +249,7 @@ We talked about them already, but there are a lot of providers that support Serv
 
 And many more.
 
-I will give a really basic example of TypeScript code for AWS Lambda and Cloudflare Workers, both using the Hono framework.
+I will give a really basic example of TypeScript code for AWS Lambda and Cloudflare Workers. The AWS Lambda example uses the native handler format, while the Cloudflare Workers example uses the Hono framework.
 
 ### AWS Lambda
 
