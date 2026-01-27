@@ -105,6 +105,8 @@ In serverless, you don't have that luxury, because each Lambda has its own scope
 
 Also, if you're using a traditional database like PostgreSQL or MySQL, you might run into connection exhaustion. Each Lambda opens its own connection, and if you have a traffic spike, you can easily hit the database connection limit. Tools like RDS Proxy, PlanetScale, or Neon handle this for you by pooling connections.
 
+Now that you understand how serverless works under the hood, let's talk about why you might actually want to use it.
+
 ---
 
 ## Why Use Serverless?
@@ -238,7 +240,7 @@ If you have a task that takes 20 minutes to process (like rendering a heavy vide
 
 ## Serverless Providers
 
-We talked about them already, but there are a lot of providers that support Serverless computing.
+Before we wrap up with guidance on when to use serverless, let's look at the major providers and some real code examples.
 
 - AWS Lambda
 - Google Cloud Functions
@@ -333,6 +335,12 @@ Then you better stick to a VPS.
 ---
 
 ## Conclusion
+
+Serverless isn't magic. It's a trade-off. You trade control for convenience, predictable costs for pay-per-use, and debuggability for automatic scaling.
+
+**Use serverless when:** you're building MVPs, side projects, APIs with unpredictable traffic, or you simply don't want to babysit infrastructure.
+
+**Stick with a VPS when:** you need persistent connections, long-running processes, predictable high traffic, or full control over your environment.
 
 I hope that helped you to understand the benefits of serverless computing, and when to use it.
 
