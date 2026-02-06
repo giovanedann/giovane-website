@@ -22,11 +22,13 @@ const projects: Project[] = [
     tagline: "Financial Control App for Brazilians",
     url: "https://plim.app.br",
     highlights: [
-      "Expense tracking app with encrypted financial data, multi-type transactions, and real-time analytics",
-      "Column-level encryption + RLS ensuring bank-grade data isolation",
-      "Shared Zod contracts across monorepo — zero type errors on deploys",
-      "Edge-deployed serverless API with sub-50ms cold starts",
-      "No cost — free tiers support ~1,500 DAU",
+      "Finance app solo developed with AI-assisted development (Claude Code): expenses, credit cards, installments, recurring payments, salary tracking, budgets, and real-time dashboard",
+      "Agentic platform powered by Gemini with function-calling: LLM selects and executes tools (SQL generation, expense creation, spending forecasting) from text, voice, and image inputs; pgvector similarity search caches intent embeddings to skip redundant LLM calls",
+      "MercadoPago payment integration: PIX QR codes + card subscriptions with HMAC SHA-256 webhook signature verification",
+      "Column-level encryption (pgcrypto) + Row-Level Security — multi-tenant data isolation at the database layer",
+      "Clean Architecture with dependency injection; shared Zod schemas enforce type safety across the monorepo",
+      "116+ tests (integration + unit) with over 45 database migrations",
+      "Zero infrastructure cost up to ~1,000 users using free tiers (Cloudflare Workers 100k req/day + Supabase 500MB + 50k MAU)",
     ],
     tech: {
       frontend: ["React 19", "TypeScript", "Vite", "TanStack Router/Query", "Zustand", "Tailwind", "Shadcn/ui"],

@@ -8,11 +8,12 @@ const experiences = [
     title: "Senior Software Engineer",
     company: "BWS IoT",
     location: "Remote",
-    period: "Nov 2025 - Present",
+    period: "Oct 2025 - Present",
     highlights: [
       "Orchestrated the stabilization of **Kubernetes-based infrastructure** using EKS. Configured Traefik ingress, automated TLS (ACME), and implemented **Prometheus/Grafana observability**, resolving complex RBAC and pod scheduling bottlenecks",
       "Diagnosed and re-engineered a critical gRPC connection handling flaw that caused intermittent service failures. Achieved **99.9% system availability** and eliminated recurring downtime incidents under peak traffic conditions",
-      "Spearheaded the integration of **AI-assisted workflows** (Claude Code, Cursor) into the SDLC. Reduced average PR cycle time by **~55%** and improved First Time Pass Rate (FTPR) by mentoring the team on effective prompt engineering and agentic coding tools",
+      "Spearheaded the integration of **AI-assisted workflows** (Claude Code, Cursor) into the software development lifecycle. Reduced average PR cycle time by **~55%** and improved First Time Pass Rate (FTPR) by mentoring the team on effective prompt engineering and agentic coding tools",
+      "Migrated a **56-page internal platform** from a Next.js monolith to a decoupled monorepo, reducing build time from **35s to 4s** (8x faster), shrinking the deploy artifact from **105MB to 562KB**, and eliminating 1.4GB of server-side build output in favor of static serving — with zero-downtime deployments, automated rollback, and a fully tested backend with **zero feature regression**",
     ],
     tech: ["TypeScript", "React", "NextJS", "TailwindCSS", "ShadCN", "NodeJS", "AWS", "Docker", "Kubernetes", "EKS", "Claude Code"],
   },
@@ -20,7 +21,7 @@ const experiences = [
     title: "Software Engineer",
     company: "IntegrateIQ",
     location: "Remote",
-    period: "Dec 2024 - Nov 2025",
+    period: "Dec 2024 - Oct 2025",
     highlights: [
       "Developed **15+ complex system integrations** (HubSpot, Salesforce, etc.), automating data synchronization for **100k+ records daily** and eliminating manual entry errors for enterprise clients",
       "Built middleware endpoints with robust token refresh and authentication logic, resulting in a **40% reduction** in integration-related support tickets",
@@ -35,7 +36,7 @@ const experiences = [
     location: "Remote",
     period: "Aug 2022 - Dec 2024",
     highlights: [
-      "Built a centralized **internal design system** and Storybook library used across **3+ core products**. Reduced UI development effort by **~60%** and ensured 100% visual consistency across the platform",
+      "Built a centralized **design system** and Storybook library across **3+ core products**, increasing feature delivery speed by **~60%** through component reuse and standardized UI patterns",
       "Implemented a comprehensive **end-to-end testing strategy** with Cypress and Playwright. Achieved **85% coverage** on critical user paths, leading to a **48% decrease** in production bugs identified per release",
       "Developed a **real-time stock and delivery module** integrated with Omie ERP. Introduced a Kanban-based workflow that increased order processing throughput by **2.4x** and provided cross-departmental visibility into stage-by-stage lead times",
     ],

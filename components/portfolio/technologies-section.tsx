@@ -14,24 +14,24 @@ const technologies: TechnologyCategory[] = [
     items: ["TypeScript", "JavaScript", "Python"],
   },
   {
-    name: "AI",
-    items: ["Claude Code", "Cursor", "LLMs", "Prompt Engineering"],
+    name: "AI & Tools",
+    items: ["Claude Code", "Cursor", "LLM Orchestration", "Prompt Engineering"],
+  },
+  {
+    name: "Front-end Development",
+    items: ["React", "NextJS", "ShadcnUI", "RadixUI", "BaseUI", "Zustand", "React Query"],
   },
   {
     name: "Databases",
-    items: ["MySQL", "MongoDB", "DynamoDB", "PostgreSQL"],
+    items: ["MySQL", "MongoDB", "DynamoDB", "PostgreSQL", "Redis"],
   },
   {
-    name: "Cloud & Frameworks",
-    items: ["AWS", "Serverless Framework", "Docker", "Kubernetes", "Next.js", "React", "Node.js", "NestJS"],
-  },
-  {
-    name: "Version Control & Collaboration",
-    items: ["Git", "GitHub", "Bitbucket", "Jira", "Slack"],
+    name: "Cloud & Infra",
+    items: ["AWS (EKS, Lambda, S3, SQS, Cognito)", "Docker", "Kubernetes", "Serverless Framework", "Cloudflare", "Supabase"],
   },
   {
     name: "Languages",
-    items: ["English (Professional Proficiency)", "Portuguese (Native)", "Spanish (Reading/Writing)"],
+    items: ["English (Professional Proficiency)", "Portuguese (Native)"],
   },
 ];
 

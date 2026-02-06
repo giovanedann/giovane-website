@@ -44,9 +44,9 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8 text-lg leading-relaxed text-muted-foreground"
         >
-          I'm a Product Engineer who loves building things end-to-end. From crafting
-          intuitive interfaces to architecting distributed systems, I thrive on the full
-          product cycle: shipping solutions that solve real problems and scale, with a beautiful design.
+          Product-driven Software Engineer building scalable, user-centric platforms
+          across high-traffic IoT and SaaS products. I leverage AI-assisted development to
+          ship features faster, improve reliability, and accelerate product iteration at scale.
         </motion.p>
 
         <motion.p
@@ -70,10 +70,9 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="mt-4 text-lg leading-relaxed text-muted-foreground"
         >
-          I'm passionate about developer experience, scalable architecture, and using
-          AI to multiply my impact. I also love writing and sharing what I learn—because
-          building great products is only half the fun if you can't communicate why
-          they matter.
+          Strong product intuition with hands-on cloud, distributed systems, and modern
+          web expertise. I also love writing and sharing what I learn—because building great
+          products is only half the fun if you can't communicate why they matter.
         </motion.p>
 
         <motion.div
