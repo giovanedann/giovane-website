@@ -4,6 +4,15 @@ import Link from "next/link";
 import { CodeBlock } from "./code-block";
 import { TokenDisplay } from "./token-display";
 import { ServerlessExecution, ServerlessScaling } from "./serverless";
+import {
+  GraphDatabaseVisual,
+  ConsistentHashingVisual,
+  DynamoDBPartitions,
+  SingleTableView,
+  DocumentStoreVisual,
+  KeyValueStoreVisual,
+  WideColumnStoreVisual,
+} from "./dynamodb";
 
 export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
@@ -11,6 +20,9 @@ export const mdxComponents: MDXComponents = {
   ),
   h3: ({ children }) => (
     <h3 className="mt-8 mb-3 text-xl font-semibold text-foreground">{children}</h3>
+  ),
+  h4: ({ children }) => (
+    <h4 className="mt-6 mb-3 text-lg font-semibold text-foreground">{children}</h4>
   ),
   p: ({ children }) => (
     <p className="mb-4 leading-relaxed text-muted-foreground">{children}</p>
@@ -24,14 +36,20 @@ export const mdxComponents: MDXComponents = {
     </Link>
   ),
   ul: ({ children }) => (
-    <ul className="mb-4 ml-6 list-disc text-muted-foreground">{children}</ul>
+    <ul className="my-4 ml-6 list-disc space-y-2.5 text-muted-foreground marker:text-foreground">
+      {children}
+    </ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-4 ml-6 list-decimal text-muted-foreground">{children}</ol>
+    <ol className="my-4 ml-6 list-decimal space-y-2.5 text-muted-foreground marker:font-semibold marker:text-foreground">
+      {children}
+    </ol>
   ),
-  li: ({ children }) => <li className="mb-2">{children}</li>,
+  li: ({ children }) => (
+    <li className="leading-relaxed">{children}</li>
+  ),
   blockquote: ({ children }) => (
-    <blockquote className="my-6 border-l-4 border-border pl-6 italic text-muted-foreground">
+    <blockquote className="my-6 border-l-4 border-border pl-6 italic text-muted-foreground [&_ul]:my-2 [&_ul]:ml-6 [&_ul]:space-y-1">
       {children}
     </blockquote>
   ),
@@ -65,4 +83,11 @@ export const mdxComponents: MDXComponents = {
   TokenDisplay,
   ServerlessExecution,
   ServerlessScaling,
+  GraphDatabaseVisual,
+  ConsistentHashingVisual,
+  DynamoDBPartitions,
+  SingleTableView,
+  DocumentStoreVisual,
+  KeyValueStoreVisual,
+  WideColumnStoreVisual,
 };

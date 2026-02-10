@@ -1,0 +1,638 @@
+---
+title: "DynamoDB Single Table Design: A Practical Guide"
+short_description: "Single Table Design sounds scary, but it's just a different way of thinking. Let's break it down with a real multi-tenant example."
+long_description: "DynamoDB forces you to think about your data differently. No JOINs, no flexible queries, no safety net. But once it clicks, it's powerful. Let's go through how DynamoDB works, what Single Table Design actually means, and build a real multi-tenant, multi-branch architecture from scratch."
+date: "2026-02-09"
+tags:
+  [
+    "dynamodb",
+    "aws",
+    "single-table-design",
+    "backend",
+    "architecture",
+    "engineering",
+    "software",
+    "database",
+    "nosql",
+  ]
+topics:
+  ["DynamoDB", "AWS", "Single Table Design", "Backend", "Architecture", "NoSQL"]
+published: true
+---
+
+> **TL;DR:** TODO: Write a TL;DR summarizing the post after it's done.
+>
+> **What to expect:**
+>
+> - How DynamoDB works under the hood (partitions, keys, indexes)
+> - What Single Table Design is and why it exists
+> - The real downsides nobody talks about (ETLs, analytics, backups)
+> - A full multi-tenant, multi-branch architecture with real code
+> - When to use it and when to stay away
+
+## Introduction
+
+I believe everyone started studying databases with one of these 2: MySQL or PostgreSQL.
+
+Those two are the 2 core databases when you talk about SQL (Structured Query Language) databases.
+
+They are pretty good, but, as everything, they are not silver bullets. Lots of tables, restrictions, fallbacks, seeds, migrations, and everything else that you need to configure to not lose yourself.
+
+New table, new migration. New column, new migration. That's a good thing, but can be pretty annoying. When you don't have your entities and relations well defined in a project, it can be a pain.
+
+That's why NoSQL databases exists, and you need to understand it first, before we talk about Single Table Design.
+
+Let's deep dive on what they are and what they serve for.
+
+---
+
+## What is a NoSQL database
+
+NoSQL ("not only SQL"), tipically refers to databases that are non-relational, but, don't get confused, you can relate data, you're just not tied to that relation.
+
+Differently from SQL databases that stores data in a table that contain columns, NoSQL databases can store data in several formats: documents, key-value, wide-column stores and graphs. Nowadays, even multi-model (can store multiple formats) databases exists.
+
+I'll briefly explain each type for you to have a better understanding.
+
+### Document-oriented databases
+
+A document-oriented database store data in documents that are pretty similar to JSON. Each document contains pairs of fields and values, and those values can be of several types: strings, numbers, booleans, arrays, and other objects.
+
+<DocumentStoreVisual />
+
+Examples of databases that follow this structure: ElasticSearch, MongoDB.
+
+### Key-value databases
+
+A key-value store is a simpler type of database where each item consists of a key, and its value.
+
+Each key is unique and associated with a single value. Of course, that doesn't mean that each key can support only numbers or strings, they can support JSONS, lists, and etc as values.
+
+Those types of databases provides high performance in reads and writes because they tend to store things in memory.
+
+<KeyValueStoreVisual />
+
+Examples of databases that follow this structure: DynamoDB, Redis.
+
+### Wide-column stores
+
+Wide-columns stores store data in tables, rows and dynamic columns. Like traditional SQL databases, the data is stored in tables, but unlike them, they are flexible, and different rows can have different sets of columns.
+
+<WideColumnStoreVisual />
+
+Notice how `user:67890` doesn't have a `role` or `hobbies` column, and `event:001` only has `name`. That's the flexibility of wide-column stores: different rows can have completely different sets of columns.
+
+Examples of databases that follow this structure: Cassandra, DynamoDB, ScyllaDB.
+
+### Graph databases
+
+A graph database stores data in the form of nodes and edges. Nodes tipically store information about the entities, while edges store information about the relation between nodes.
+
+<GraphDatabaseVisual />
+
+Examples of databases that follow this structure: Neo4J, Amazon Neptune.
+
+## What is DynamoDB
+
+DynamoDB is a serverless, fully managed, distributed NoSQL database provided by Amazon.
+
+To support a wide variety of use cases, DynamoDB supports both key-value and document data models, and it's promise is to scale infinitely and have the same read speed for 100 and 100 milion records.
+
+Unfortunately, DynamoDB is not open source, so there is a limit about what you can and what you cannot know about it under the hood.
+
+Instead of providing some screenshots of the terrifying AWS console interface, i'll provide examples using IaC. I'll use Serverless Framework YML files as examples, but in general, it's pretty easy to understand the concept.
+
+Here's how you create a table in DynamoDB, using Serverless Framework:
+
+```yaml
+resources:
+  Resources:
+    MyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MyAwesomeTable
+        AttributeDefinitions:
+          - AttributeName: PK # Partition Key
+            AttributeType: S
+          - AttributeName: SK # Sort Key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+```
+
+You can notice that i haven't defined any attribute, that's because DynamoDB is schemaless, which means you don't need to define a schema to your Items when creating a table.
+
+If you didn't understand what partition keys and sort keys are, there's a section for that.
+
+## How DynamoDB Works
+
+In DynamoDB, data is organized into tables, where each table can have multiple items that represent individual records. The data is spread across **tables**, **items** and **attributes**.
+
+Tables -> the top level data structure, each defined by a required primary key that uniquely identifies its items. Tables support secondary indexes, enabling queries on non-primary key atrributes for versatility on data retrieval.
+Items -> the same as rows in an SQL database, each item can have up to 400KB of data, including all of its attributes.
+Attributes -> Key-value pairs that stores the data within an item. They can have a wide variety of types, such as: strings, numbers, booleans, string sets, number sets, etc. Attributes can also be nested, allowing complex data structures for a single item.
+
+Now, you might think, how the hell they can scale inifinitely?
+
+That's because of the **DynamoDB Partitions** and a technique called **Consistent Hashing**.
+
+### Consistent Hashing
+
+I will try to explain this briefly, because that's a whole other topic, for you to understand the concept. But, if you want to deep dive, you might need to do some research.
+
+Consistent Hashing, briefly, is the technique used primarily in distributed systems to distribute data across different databases (physical locations) in a way that it automatically redistributes data when adding or removing an instance of the database.
+
+Here's how it works:
+
+1. A hash ring is created with a fixed number of points, let's say 10.
+2. Then, we evenly distribute data across that hash ring. In the case where we have 10 databases (in DynamoDB, 10 partitions), we could put them at: (0, 1, 2, 3, ..., 9), thus, 10 points.
+3. In order to know which database data should be stored on, we hash the event id (like before), but instead of using mathematic modulo, we move clockwise until we find the next hash (next database instance).
+
+But, how that solve the problem? Because the events will have the same hash, and, since we're moving clockwise, we know **exactly** to which instance of the database we should move our data in case of adding or removing a new database.
+
+I know that's hard to understand, here's something visual:
+
+<ConsistentHashingVisual />
+
+### Partitions and Keys
+
+DynamoDB tables are defined by a primary key, which can consist of one or two attributes: Partition Key and Sort Key.
+
+Partition Keys (PKs) and Sort Keys (SKs) are the foundation of how DynamoDB scales.
+
+-> Partition Key: an attribute that, along with the sort key (if present), uniquely identifies each item on a table. The name partition is because that key defines the hash to find the **physical location (e.g. HD)** where that item will be stored.
+-> Sort Key: optional additional attribute that, when combined with the partition keys, forms a composite primary key.
+
+But, what's happening under the hood?
+
+As mentioned before, DynamoDB uses a combination of consistent hashing (for partitions) and b-trees (for sort keys).
+
+When querying with both keys DynamoDB first uses the partition key hash to find the right node, then uses the sort key to traverse the b-tree and retrieve the items.
+
+This approach allows both horizontal scaling and efficient querying within partitions, enabling DynamoDB to handle massive amounts of data while providing fast and predictable performance.
+
+<DynamoDBPartitions />
+
+For example, let's imagine that i want to group everything of a given user, if i group all my items with a PK `USER#id`, i can retrieve everything of the user in a single query.
+
+Although that's possible, we shouldn't do that, because a partition size is limited by 10GB. So, if an user have 10+GB of data, and you're following that approach, you might have problems.
+
+Now, you might wonder, what about if i want to query data by something that isn't the PK?
+
+DynamoDB allow that with Secondary Indexes, which will be the next topic.
+
+### Secondary Indexes (SIs)
+
+There are 2 types of secondary indexes, Global and Local Secondary Indexes:
+
+- Global Secondary Index (GSI): an index with a partition key and an optional sort key that differs from the table's partition key. This is useful when you need access patterns that differs from the table's partition key. For example, given a scenario where your PK is `USER#id`, and you want to query data of the user by the email, you can add a GSI of `USER#email`. Of course, you can search by attribute, but that will not scale, because when we need to search things by attributes, we need to iterate over all items. It works, but it's inneficient at scale. Since GSIs use a different partition key, the data is stored on an entirely different physical space (partition), and the data is replicated entirely or partially, to that location.
+- Local Secondary Index (LSI): an index with the same Partition Key as the table Primary Key, but with a different Sort Key. LSIs enable range queries and sorting within a partition. Since LSIs use the same partition key as the base table, they stay in the same phisical location, so you need to be careful at scale.
+
+An important thing to notice is that you have a limited amount of how many indexes you can add to a table, so usually you should avoid creating an index for each property. Also, you should be careful with LSI's since they stay in the same partition, due to the limit of 10GB of data in a single partition.
+
+```yaml
+resources:
+  Resources:
+    MyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MyAwesomeTable
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+          - AttributeName: GSI1PK
+            AttributeType: S
+          - AttributeName: GSI1SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: GSI1
+            KeySchema:
+              - AttributeName: GSI1PK
+                KeyType: HASH
+              - AttributeName: GSI1SK
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+```
+
+---
+
+## Single Table Design
+
+Okay, enough talking, now that you have a better understanding about how DynamoDB works, let's shift into the main topic: **Single Table Design**.
+
+The name is pretty suggestive, and pretty straight forward. **ALL YOUR DATA LIVES IN THE SAME TABLE**. Remember: partitions split data between different physical spaces, **so they are in the same table, but not in the same physical space**.
+
+Imagine your PostgreSQL project, with dozens of tables and relations, in a single table? I know, it's mind-twisting and hard to even think about the transition, but i will guide you through it so you can understand better.
+
+First things first, let's break down about the mindset you need before even working with a Single Table Design architecture.
+
+### Access Patterns First
+
+When working with Single Table Design, you can't even think about starting implementing things without having **really well defined access patterns**.
+
+And why is that? Because **defining your PKs, SKs and Secondary Indexes are the most important part of that approach**.
+
+There's 2 reasons for that:
+
+- You need to think systematically about how to split your data, and how to access data, to avoid 2 things: hitting the limit of Indexes and avoiding bottlenecks of data in the same physical location.
+- You need to think about **how you want to query your data**.
+
+In DynamoDB, there is no `ON DELETE SET NULL` approach. If you change an access pattern, and need to change an SK, you need to do an ETL (Extract, Transform, Load). This process, depending on the size of the project, can take hours, and can be a real pain.
+
+So, that's why i always say **It's better to lose hours thinking about your data, then dozens of hours running ETL's**.
+
+Of course, eventually, you might need to run an ETL, and that's okay, but the more you know about your business logic and how data will communicate, the more money and time you save.
+
+### How It Works
+
+Now, let's see some real world examples for you to understand it better.
+
+For that, i'll consider a hypothetical multi-tenant, multi-branch systems to store transactions.
+
+Let's take a look at how a schema for that would look like:
+
+<SingleTableView />
+
+Now, you might wonder: why haven't him sepparated everything as the Tenant ID as the PK?
+
+Well, that's because of the **access patterns**. Let's think about it: given a tenant (e.g. Mc Donalds), if i have a branch in California, and one in Philadelphia, what matters is data inside the branches.
+
+So, by sepparating the data like that, we solve 2 problems: expensive queries (needing to sort by the SK), and well sepparated partitions. Each branch have its own data well sepparated.
+
+So, let's break it down:
+
+- **Tenant**: PK is `TENANT#tenantId`, SK is `METADATA`. It's the root entity, there's only one metadata item per tenant, so the SK is a static value.
+- **Branch**: PK is `TENANT#tenantId#BRANCH`, SK is `branchId`. With this design, we can't list all branches of a tenant in a single query from the primary table. To do that, we'd need a GSI. In the project, we use **GSI2** with `BRANCH#document` as the key, which lets us find a branch by its document number. If we needed to list all branches for a tenant, we could add another GSI with `TENANT#tenantId` as the partition key. This is a common trade-off in Single Table Design: you prioritize the most frequent access patterns on the primary keys, and handle the rest with GSIs.
+- **Account**: PK is `TENANT#tenantId#ACCOUNT`, SK is `accountId`. Accounts are scoped to a tenant. We use **GSI1** with `ACCOUNT#email` as the key, so we can find an account by email without knowing the tenant id (useful for login flows).
+- **Transaction**: PK is `TENANT#tenantId#BRANCH#branchId#TRANSACTION`, SK is `YYYY-MM-DD#transactionId`. Transactions are scoped by branch, so each branch has its own partition. The SK is date-prefixed, which means DynamoDB naturally sorts them by date, enabling efficient range queries.
+- **Report**: PK is `TENANT#tenantId#BRANCH#branchId#REPORTING`, SK is `periodType#periodValue`. Pre-computed aggregations scoped by branch. The SK lets us query by period type (DAILY, MONTHLY, YEARLY) and do range queries across periods.
+
+Also, it's noticeable that on DynamoDB, you should always try to use sortable ids like KSUID, since sort keys are already sorted by default.
+
+### The Good And The Bad
+
+Before you go all-in, and try to switch your 50 table SQL and delete your SQL migrations forever, we need to have a heart-to-heart. Single Table Design is a superpower, but every superpower has its Kryptonite. It’s not about finding the 'perfect' database; it’s about choosing which trade-offs you are willing to live with. Let's look at the good, the bad, and the ugly.
+
+#### The Upsides
+
+- **Single query, multiple entities**: You can fetch related data in one request
+- **Cost efficiency**: One table means fewer read/write capacity units to manage
+- **Simplified infrastructure**: One table to monitor, one table to back up
+- **Atomic transactions**: TransactWriteItems across entities in the same table
+- **Consistent performance at any scale**: DynamoDB's partition-based architecture
+- **Scalability isn't a concern**: DynamoDB will handle that for you
+
+#### The Downsides
+
+- **Analytics are painful**: You can't just `SELECT * FROM transactions WHERE category = 'X' AND date BETWEEN ...` across your entire dataset. You need ETL pipelines to export data to S3/Athena for analytics.
+- **Backup granularity**: Point-in-time recovery restores the entire table, not specific entity types. If you need to restore just your Transactions but not touch Reports, you're out of luck. You'd need to restore to a new table and cherry-pick what you need.
+- **Hard to deal with changes**: Prepare hours and some cronjobs to backfill data if you ever need to change an access pattern that you didn't expect.
+- **Steep learning curve**: The mental model is completely different from relational databases. Your team needs to understand access patterns, key design, and GSI projections.
+- **Hard to evolve**: Adding a new access pattern after the fact can be painful. You might need a new GSI or even a data migration.
+- **Tooling and debugging**: Looking at a DynamoDB table in the AWS Console with mixed entities is not fun. Everything looks like a mess until you understand the key patterns.
+
+---
+
+## Real Example: Multi-Tenant, Multi-Branch Architecture
+
+Now that we've covered the theory, let me show you how all of this looks in a real project.
+
+I've been working on a financial management application that supports multiple tenants (think of a restaurant chain or a franchise), where each tenant can have multiple branches (locations in different cities). Each branch manages its own financial transactions and generates reports.
+
+The domain is straightforward: a **Tenant** has **Branches** and **Accounts** (users). Each **Branch** owns **Transactions** (income and expenses) and **Reports** (pre-computed aggregations). Let's see how this translates into a Single Table Design.
+
+### The Table Definition
+
+Here's the actual table definition using Serverless Framework. Notice how we only define the key attributes (PK, SK, and GSI keys), but no business attributes. That's DynamoDB being schemaless:
+
+```yaml
+MainTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: main-table
+    BillingMode: PAY_PER_REQUEST
+    PointInTimeRecoverySpecification:
+      PointInTimeRecoveryEnabled: true
+    DeletionProtectionEnabled: true
+    AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S # String
+      - AttributeName: SK
+        AttributeType: S
+      - AttributeName: GSI1PK
+        AttributeType: S
+      - AttributeName: GSI1SK
+        AttributeType: S
+      - AttributeName: GSI2PK
+        AttributeType: S
+      - AttributeName: GSI2SK
+        AttributeType: S
+    KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+    GlobalSecondaryIndexes:
+      - IndexName: GSI1
+        KeySchema:
+          - AttributeName: GSI1PK
+            KeyType: HASH
+          - AttributeName: GSI1SK
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL # Copy all attributes
+      - IndexName: GSI2
+        KeySchema:
+          - AttributeName: GSI2PK
+            KeyType: HASH
+          - AttributeName: GSI2SK
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+```
+
+### Entity Key Design
+
+In the project, each entity has its own Item class that encapsulates the key construction. This is a pattern i really like, because it keeps all the key logic in one place and makes it easy to understand how each entity is stored.
+
+Now let's see how each entity builds its keys in TypeScript.
+
+Here's how the **Account** entity builds its keys, including the GSI for email lookups:
+
+```typescript
+export class AccountItem {
+  static getPK(tenantId: string) {
+    return `ACCOUNT#TENANT#${tenantId}`;
+  }
+
+  static getSK(accountId: string) {
+    return accountId;
+  }
+
+  static getGSI1PK(email: string) {
+    return `ACCOUNT#${email}`;
+  }
+
+  static getGSI1SK(email: string) {
+    return `ACCOUNT#${email}`;
+  }
+}
+```
+
+The GSI1 here is what allows us to find an account by email without knowing the tenant id. When a user logs in, we know their email but not which tenant they belong to, so we query GSI1 instead of the primary table.
+
+Here's the **Transaction** entity, which is the most interesting one because of the date-prefixed SK:
+
+```typescript
+export class TransactionItem {
+  static getPK({ tenantId, branchId }: { tenantId: string; branchId: string }) {
+    return `TRANSACTION#TENANT#${tenantId}#BRANCH#${branchId}`;
+  }
+
+  static getSK({
+    createdAt,
+    transactionId,
+  }: {
+    createdAt: Date;
+    transactionId: string;
+  }) {
+    const year = createdAt.getUTCFullYear();
+    const month = String(createdAt.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(createdAt.getUTCDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}#${transactionId}`;
+  }
+}
+```
+
+Notice how the SK combines the date with the transaction id. This means that when we query all transactions for a branch, they come back naturally sorted by date. And if we want transactions from a specific date range, we can use the SK in a `BETWEEN` condition.
+
+And the **Report** entity, which uses period type and value as the SK:
+
+```typescript
+export class ReportItem {
+  static getPK({ tenantId, branchId }: { tenantId: string; branchId: string }) {
+    return `REPORT#TENANT#${tenantId}#BRANCH#${branchId}`;
+  }
+
+  static getSK({
+    periodType,
+    periodValue,
+  }: {
+    periodType: string;
+    periodValue: string;
+  }) {
+    return `${periodType}#${periodValue}`;
+  }
+}
+```
+
+This allows us to query reports by period type (DAILY, MONTHLY, YEARLY) and do range queries like "give me all monthly reports from January to June".
+
+### Multi-Tenant Isolation
+
+One of the best things about this approach is that tenant isolation is baked into the key design itself.
+
+Every single query requires a `tenantId` in the partition key. There's no way to accidentally read another tenant's data, because you physically can't query a partition without knowing the tenant id.
+
+If i want to query transactions, i need to provide `TRANSACTION#TENANT#tenantId#BRANCH#branchId` as the PK. If i pass the wrong tenant id, i just get an empty result, because the data lives in a completely different partition.
+
+The hierarchy is straightforward:
+
+- A **Tenant** is the root entity. Everything belongs to a tenant.
+- **Branches** and **Accounts** are scoped to a tenant. You can't have a branch without a tenant.
+- **Transactions** and **Reports** are scoped to a branch within a tenant. You can't access them without knowing both the tenant and the branch.
+
+This is way more powerful than SQL's `WHERE tenant_id = ?`, because in DynamoDB, the isolation happens at the physical storage level. It's not just a filter on a query, it's a completely different partition.
+
+### Querying in Practice
+
+Let's see how the actual queries look like using the AWS SDK.
+
+#### Getting a specific item
+
+The simplest operation. You know exactly what you want, you provide the PK and SK, and DynamoDB gives it to you:
+
+```typescript
+async get({ branchId, createdAt, tenantId, transactionId }) {
+  const getCommand = new GetCommand({
+    TableName: "main-table",
+    Key: {
+      PK: TransactionItem.getPK({ tenantId, branchId }),
+      SK: TransactionItem.getSK({ transactionId, createdAt }),
+    },
+  });
+
+  const { Item } = await dynamoClient.send(getCommand);
+  return Item;
+}
+```
+
+That's it. One call, one item. No JOINs, no WHERE clauses. If the item exists, you get it. If it doesn't, you get `null`.
+
+#### Listing with pagination and filters
+
+This is where DynamoDB shines. We query by PK, sort descending (most recent first), and paginate with cursors:
+
+```typescript
+async getAll({ tenantId, branchId, limit = 50, exclusiveStartKey }) {
+  const queryCommand = new QueryCommand({
+    TableName: "main-table",
+    KeyConditionExpression: "#PK = :pk",
+    ExpressionAttributeNames: { "#PK": "PK" },
+    ExpressionAttributeValues: {
+      ":pk": TransactionItem.getPK({ tenantId, branchId }),
+    },
+    Limit: limit,
+    ScanIndexForward: false,
+    ExclusiveStartKey: exclusiveStartKey,
+  });
+
+  const { Items = [], LastEvaluatedKey } = await dynamoClient.send(queryCommand);
+
+  return {
+    transactions: Items,
+    lastEvaluatedKey: LastEvaluatedKey,
+    hasMore: !!LastEvaluatedKey,
+  };
+}
+```
+
+`ScanIndexForward: false` is what makes the transactions come back sorted by most recent first, since our SK is date-prefixed. And `ExclusiveStartKey` is DynamoDB's way of handling pagination, think of it as a cursor.
+
+If you want to add filters (by transaction type, amount range, category), you can use `FilterExpression`:
+
+```typescript
+FilterExpression: "#transactionType = :type AND #amount BETWEEN :min AND :max",
+ExpressionAttributeNames: {
+  "#transactionType": "transactionType",
+  "#amount": "amount",
+},
+ExpressionAttributeValues: {
+  ":type": "EXPENSE",
+  ":min": 100,
+  ":max": 500,
+},
+```
+
+One important thing to note: **filters are applied after the query, not before**. DynamoDB first fetches all items matching the PK/SK condition, then applies the filter. This means you still consume read capacity for the filtered-out items. That's why key design matters so much.
+
+#### Querying by GSI
+
+Sometimes you need to find data by an attribute that isn't the PK. That's what GSIs are for. For example, finding an account by email:
+
+```typescript
+async findByEmail(email: string) {
+  const queryCommand = new QueryCommand({
+    IndexName: "GSI1",
+    TableName: "main-table",
+    Limit: 1,
+    KeyConditionExpression: "#GSI1PK = :GSI1PK AND #GSI1SK = :GSI1SK",
+    ExpressionAttributeNames: {
+      "#GSI1PK": "GSI1PK",
+      "#GSI1SK": "GSI1SK",
+    },
+    ExpressionAttributeValues: {
+      ":GSI1PK": AccountItem.getGSI1PK(email),
+      ":GSI1SK": AccountItem.getGSI1SK(email),
+    },
+  });
+
+  const { Items = [] } = await dynamoClient.send(queryCommand);
+  return Items[0] || null;
+}
+```
+
+This is useful because when a user logs in, we know their email but not their tenant id. The GSI lets us find the account without needing to know which tenant they belong to.
+
+### Pre-Computed Aggregations
+
+One of the coolest patterns in this architecture is the Report entity. Instead of running expensive queries to calculate totals every time someone opens a dashboard, we pre-compute the aggregations whenever a transaction is created or deleted.
+
+The idea is simple: every time a transaction happens, we update the corresponding report (daily, monthly, yearly) with atomic counters. DynamoDB handles this with `UpdateCommand` and `if_not_exists`, which means the report is automatically created the first time and incremented from there:
+
+```typescript
+async updateCounters({ tenantId, branchId, periodType, periodValue, transactionType, amount }) {
+  const isIncome = transactionType === "INCOME";
+
+  const updateCommand = new UpdateCommand({
+    TableName: "main-table",
+    Key: {
+      PK: ReportItem.getPK({ tenantId, branchId }),
+      SK: ReportItem.getSK({ periodType, periodValue }),
+    },
+    UpdateExpression: `
+      SET
+        #totalIncome = if_not_exists(#totalIncome, :zero) + :incomeAmount,
+        #totalExpense = if_not_exists(#totalExpense, :zero) + :expenseAmount,
+        #transactionCount = if_not_exists(#transactionCount, :zero) + :countDelta
+    `,
+    ExpressionAttributeNames: {
+      "#totalIncome": "totalIncome",
+      "#totalExpense": "totalExpense",
+      "#transactionCount": "transactionCount",
+    },
+    ExpressionAttributeValues: {
+      ":zero": 0,
+      ":incomeAmount": isIncome ? amount : 0,
+      ":expenseAmount": isIncome ? 0 : amount,
+      ":countDelta": 1,
+    },
+  });
+
+  await dynamoClient.send(updateCommand);
+}
+```
+
+The `if_not_exists` is the key here. It means: "if this attribute doesn't exist yet, start from zero, then add the value." This way, we don't need to check if the report exists before updating it, DynamoDB handles the initialization automatically.
+
+The reports also support breakdown maps, where we track totals by category, cost center, and payment method. This uses nested map updates:
+
+```typescript
+// First, ensure the entry exists with default values
+UpdateExpression: `
+  SET #byCategory.#entryKey = if_not_exists(#byCategory.#entryKey, :defaultEntry)
+`
+ExpressionAttributeValues: {
+  ":defaultEntry": { totalIncome: 0, totalExpense: 0, transactionCount: 0 }
+}
+
+// Then, increment the values atomically
+UpdateExpression: `
+  SET
+    #byCategory.#entryKey.#totalIncome = #byCategory.#entryKey.#totalIncome + :incomeAmount,
+    #byCategory.#entryKey.#totalExpense = #byCategory.#entryKey.#totalExpense + :expenseAmount,
+    #byCategory.#entryKey.#transactionCount = #byCategory.#entryKey.#transactionCount + :countDelta
+`
+```
+
+This two-step approach (initialize then increment) is necessary because DynamoDB can't use `if_not_exists` and arithmetic on nested attributes in the same expression. It's a small trade-off for having real-time aggregations without any external processing.
+
+When someone wants to see the monthly report for a branch, we just do a simple `GetCommand` with the PK and SK. No scanning, no aggregation queries, no waiting. The data is already there.
+
+---
+
+## Conclusion
+
+And that's Single Table Design. It's not a Silver Bullet, but a really fun path to learn.
+
+If you never used it, i invite you to do that on a new project to test, i can guarantee that you're going to have a lot of headaches, as I did.
+
+If you liked the post, leave a like and share it with your friends.
+
+Feel free to leave a comment about your experience with Single Table Design, if you have used it before!
+
+Farewell!
