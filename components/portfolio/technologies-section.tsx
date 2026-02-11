@@ -27,7 +27,7 @@ const technologies: TechnologyCategory[] = [
   },
   {
     name: "Cloud & Infra",
-    items: ["AWS (EKS, Lambda, S3, SQS, Cognito)", "Docker", "Kubernetes", "Serverless Framework", "Cloudflare", "Supabase"],
+    items: ["AWS (EKS, Lambda, S3, SQS, Cognito)", "Docker", "Kubernetes", "Terraform", "Serverless Framework", "Cloudflare", "Supabase"],
   },
   {
     name: "Languages",
