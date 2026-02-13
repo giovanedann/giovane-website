@@ -19,7 +19,7 @@ const technologies: TechnologyCategory[] = [
   },
   {
     name: "Front-end Development",
-    items: ["React", "NextJS", "ShadcnUI", "RadixUI", "BaseUI", "Zustand", "React Query"],
+    items: ["React", "NextJS", "Modern UI Libraries (Radix, Shadcn)", "Zustand", "React Query"],
   },
   {
     name: "Databases",
@@ -27,7 +27,7 @@ const technologies: TechnologyCategory[] = [
   },
   {
     name: "Cloud & Infra",
-    items: ["AWS (EKS, Lambda, S3, SQS, Cognito)", "Docker", "Kubernetes", "Terraform", "Serverless Framework", "Cloudflare", "Supabase"],
+    items: ["AWS", "Docker", "Kubernetes", "Terraform", "Serverless Framework", "Cloudflare", "Supabase"],
   },
   {
     name: "Languages",

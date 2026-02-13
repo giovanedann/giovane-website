@@ -44,9 +44,10 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8 text-lg leading-relaxed text-muted-foreground"
         >
-          Product-driven Software Engineer building scalable, user-centric platforms
-          across high-traffic IoT and SaaS products. I leverage AI-assisted development to
-          ship features faster, improve reliability, and accelerate product iteration at scale.
+          Product-minded engineer who builds products, not just features. Solo-built and
+          monetized a financial control app from zero; led full-stack infrastructure migrations
+          and shipped AI-assisted workflows that halved PR cycle time. Cares as much about
+          what to build and why as how to build it.
         </motion.p>
 
         <motion.p
