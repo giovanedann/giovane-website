@@ -44,10 +44,10 @@ export function AboutSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8 text-lg leading-relaxed text-muted-foreground"
         >
-          Product-minded engineer who builds products, not just features. Solo-built and
-          monetized a financial control app from zero; led full-stack infrastructure migrations
-          and shipped AI-assisted workflows that halved PR cycle time. Cares as much about
-          what to build and why as how to build it.
+          Product-minded engineer with 4 years of experience building products, not just
+          features. Solo-built and monetized a financial control app from zero; led full-stack
+          infrastructure migrations and shipped AI-assisted workflows that halved PR cycle
+          time. Cares as much about what to build and why as how to build it.
         </motion.p>
 
         <motion.p

@@ -10,7 +10,7 @@ import { EducationSection } from "@/components/portfolio/education-section";
 export const metadata: Metadata = {
   title: "About | Giovane Saes",
   description:
-    "Giovane Saes - Product-minded engineer who builds products, not just features. São Paulo, Brazil.",
+    "Giovane Saes - Product-minded engineer with 4 years of experience building products, not just features. São Paulo, Brazil.",
 };
 
 export default function AboutPage() {

@@ -15,7 +15,7 @@ const technologies: TechnologyCategory[] = [
   },
   {
     name: "AI & Tools",
-    items: ["Claude Code", "Cursor", "LLM Orchestration", "Prompt Engineering"],
+    items: ["Claude Code", "Cursor", "LLM Orchestration", "Prompt Engineering", "Embeddings"],
   },
   {
     name: "Front-end Development",
@@ -31,7 +31,7 @@ const technologies: TechnologyCategory[] = [
   },
   {
     name: "Languages",
-    items: ["English (Professional Proficiency)", "Portuguese (Native)"],
+    items: ["English (Fluent)", "Portuguese (Native)"],
   },
 ];
 

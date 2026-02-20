@@ -5,14 +5,14 @@ import { Timeline } from "./timeline";
 
 const experiences = [
   {
-    title: "Senior Product Engineer",
+    title: "Product Engineer (Rehired for Leadership Role)",
     company: "BWS IoT",
     location: "Remote",
     period: "Oct 2025 - Present",
     highlights: [
       "Orchestrated the stabilization of **Kubernetes-based infrastructure** using EKS. Configured Traefik ingress, automated TLS (ACME), and implemented **Prometheus/Grafana observability**, resolving complex RBAC and pod scheduling bottlenecks",
       "Diagnosed and re-engineered a critical gRPC connection handling flaw that caused intermittent service failures. Achieved **99.9% system availability** and eliminated recurring downtime incidents under peak traffic conditions",
-      "Spearheaded the integration of **AI-assisted workflows** (Claude Code, Cursor) into the software development lifecycle. Reduced average PR cycle time by **~55%** and improved First Time Pass Rate (FTPR) by mentoring the team on effective prompt engineering and agentic coding tools",
+      "Architected and led the adoption of **AI-agentic workflows** (Claude Code, Cursor) across the engineering team (5 engineers), **slashing PR cycle time by 55%** and establishing new standards for team productivity and code quality; improved First Time Pass Rate (FTPR) by **mentoring the team on effective prompt engineering and agentic coding tools**",
       "Migrated a **56-page internal platform** from a Next.js monolith to a decoupled monorepo **(Vite + Fastify)**, reducing build time from **35s to 4s** and production bundle from **105MB to 562KB (99.5% smaller)**",
       "Designed the full AWS infrastructure from scratch with **Terraform** (5 composable modules covering EKS, networking, IAM, and CI/CD), enabling **zero-downtime deployments** with automatic rollback — **zero feature regression** during the migration",
     ],
