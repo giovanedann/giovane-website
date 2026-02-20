@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Giovane Saes | Software & AI Engineer",
-  description: "Personal website of Giovane Saes - Software & AI Engineer. Read tech posts, explore my career journey, or play a typing game.",
+  title: "Giovane Saes | Product & AI Engineer",
+  description: "Personal website of Giovane Saes - Product & AI Engineer. Read tech posts, explore my career journey, or play a typing game.",
   manifest: "/site.webmanifest",
 };
 

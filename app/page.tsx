@@ -28,7 +28,7 @@ export default function Home() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-xl font-medium text-muted-foreground md:text-2xl"
         >
-          Software & AI Engineer
+          Product & AI Engineer
         </motion.p>
 
         <motion.p
