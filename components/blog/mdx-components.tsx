@@ -13,6 +13,8 @@ import {
   KeyValueStoreVisual,
   WideColumnStoreVisual,
 } from "./dynamodb";
+import { UIComparison } from "./ui-comparison";
+import { WordWithTooltip } from "./word-with-tooltip";
 
 export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
@@ -90,4 +92,6 @@ export const mdxComponents: MDXComponents = {
   DocumentStoreVisual,
   KeyValueStoreVisual,
   WideColumnStoreVisual,
+  UIComparison,
+  WordWithTooltip,
 };
