@@ -1,0 +1,147 @@
+---
+title: "Backend Is Not Enough"
+short_description: "People love to dismiss frontend as easy. But if your product looks and feels terrible, no one cares how scalable your backend is."
+long_description: "There's a widespread belief in tech that backend engineering is the 'real' engineering and frontend is just making things pretty. People will tell you to focus on scalable infrastructure, distributed systems, and leave the UI as an afterthought. But here's the thing: if your user experience is awful, nobody will stick around long enough to appreciate your beautifully architected backend. What's the point of scaling something nobody wants to use? Let's discuss this!"
+date: "2026-02-26"
+tags: ["software-engineering", "frontend", "backend", "ux", "product-engineering", "product"]
+topics: ["frontend", "backend", "ux", "product", "engineering-culture"]
+published: true
+---
+
+> **TL;DR:** Frontend isn't less important than backend. If your product looks and feels terrible, no one cares how scalable your infrastructure is. The best engineers think about the full product, not just one layer.
+>
+> **What to expect:**
+> - Why dismissing frontend is a mistake
+> - The product engineering mindset
+> - Why users don't care about your architecture
+> - What to actually focus on as an engineer
+
+## My Side of the Story
+
+When I started my journey as a Software Engineer, I was fascinated by frontend. I just like it when people enjoy the experience of interacting with something that I built.
+
+Often, I saw people who took the opposite path, focusing on backend, and mocking those who chose differently:
+
+- *"I hate CSS"*
+- *"Frontend doesn't matter"*
+- *"I don't care about learning CSS, we have Material UI, why should I bother?"*
+
+Those are only some of the things I saw people saying in the past. Today, the talk is different:
+
+- *"Frontend is dead, AIs can do everything on frontend, why should I care?"*
+
+In a way, I agree that frontend today is much easier than 3 years ago, when you had to do things by hand. But, for me, it's **far from being easy or dead**.
+
+Before we dive in, here's a quick example. This is my website — same content, same buttons, same information. The only difference is the frontend. Hit "Beautify" below and tell me — which version makes you want to click around?
+
+<UIComparison />
+
+Let's talk about why that matters.
+
+---
+
+## "But AI Can Build Frontends Now"
+
+Yes, it can. And it's genuinely impressive. You can describe what you want and get a working UI in seconds. But here's the thing: every AI-generated frontend looks the same. Same component libraries, same layouts, same spacing, same vibe. It's functional, but it's generic.
+
+The question isn't *"can AI build a frontend?"* It's *"do you want your product to look like everyone else's?"* Technically complete, but lifeless. Nobody's bookmarking that.
+
+AI is a fantastic accelerator, but it doesn't replace taste, craft, or the ability to make something *feel* right. The engineers who treat frontend as a commodity will ship commodity products. The ones who care will stand out — and so will their work.
+
+## Why Frontend Matters As Much As Backend
+
+You might think frontend is not important. After all, most backend engineers are focused on things like: "I can't let a payment go through twice. I need to add <WordWithTooltip tooltip="Ensuring the same action doesn't process twice">idempotency</WordWithTooltip> and a lot of logic to mitigate that, otherwise users will never buy on my website again!".
+
+They aren't wrong — **they're absolutely right!** (pun intended)
+
+But what if your users have such a bad experience browsing your product listings that they don't even bother clicking to buy?
+
+I'm not saying double payments should be ignored. They should never exist. And yes, handling reimbursements is a nightmare: you deal with trust damage, regulatory compliance, support tickets, and angry users. I get it.
+
+But here's the thing: **at least that user made it to checkout**. If your UI is so bad that people bounce before they even browse your products, you don't get the chance to have backend problems. You just have no users.
+
+And yes, there are domains where backend complexity genuinely dominates — financial infrastructure, distributed databases, real-time trading systems. I'm not pretending those aren't hard. But even those products have users who interact through a UI, and if that UI is confusing or broken, the engineering behind it doesn't matter to them.
+
+That's why, for me, it's not about "which is more important" — it's about balance. Both a double-charging app and an e-commerce with a terrible UI lead to the same outcome: people stop using your product. They're just different failure modes.
+
+## The Product Mindset
+
+Now, let's make something clear: I'm not saying learning backend, DevOps, and security aren't important. I'm just saying — **why learn only one of those?**
+
+In my first job, as an entry-level frontend engineer, I often needed a new API endpoint, a new filter, or some processing on the backend. So I asked the backend team: "hey, can you please add that to the API?" But guess what? That takes time. Sometimes, that dependency turned a 5-minute task into a 2-hour wait, because I was blocked by someone else's work.
+
+That's why, from that moment on, I decided to become a **full-stack engineer**.
+
+After that, I got promoted to a mid-level full-stack engineer. Things were way easier. I could finish tasks faster, without blockers, without needing to wait for a simple API endpoint. And that was beautiful.
+
+Until I needed a caching layer to avoid overloading the database.
+
+Now, I had another issue: **infrastructure**. Same story: waiting for someone to set everything up so I could use it. From that moment, I also decided that I would learn **EVERYTHING**, because I didn't want to depend on anyone else to finish my tasks.
+
+That's what people call **Product Engineering** — the ability to ship software end to end. And I think that's what every engineer should care about.
+
+## Your Product Is What Users See
+
+Products only exist because they solve someone's problem:
+
+- **Microwaves** exist because people need to heat their food
+- **Instagram** exists because people like to connect and post photos
+- **Cars** exist because people don't want to walk long distances
+
+They're all products, and they all have users.
+
+It doesn't matter if you can handle millions of HTTP requests per second. 99% of your users will not even know that's a thing. They just click a button to update their profile picture, and that's it. They don't know about compression, <WordWithTooltip tooltip="Content delivery networks — servers that cache your files worldwide">CDNs</WordWithTooltip>, <WordWithTooltip tooltip="Cloud file storage for images, videos, and other files">blob storage</WordWithTooltip>, <WordWithTooltip tooltip="Temporary secure links to access private files">presigned URLs</WordWithTooltip>, or any of those technical things.
+
+For them, what matters is what they see.
+
+Imagine a user trying to upload their profile picture, and your backend takes 3 minutes to process it. If you stick them in a 3-minute loading state, they will be pissed as hell. Maybe not the first time, but they will eventually. I guarantee it, because I am one of them.
+
+Then, you might think: *"there's nothing we can do, that's the time we take to upload the file."* That might be true, but you're completely ignoring something: the issue is the loading state.
+
+We can easily solve that by saving the file into a local variable, making an <WordWithTooltip tooltip="Showing the change immediately before the server confirms it">optimistic update</WordWithTooltip> (showing the local image instead of waiting for the remote one), and updating in the background. If it fails, we notify the user to try again. If not, the next time we just use the file from the blob storage.
+
+That's probably a 30-minute change on the frontend, without touching the backend, and it changes the user experience to an **instant profile update**.
+
+Here's another one: imagine a search feature. Your backend returns results in 200ms, lightning fast. But the frontend has no <WordWithTooltip tooltip="Waiting until the user stops typing before sending a request">debouncing</WordWithTooltip>, no <WordWithTooltip tooltip="Placeholder shapes that mimic the layout while content loads">loading skeleton</WordWithTooltip>, and the results jump around as images load in. The backend did its job perfectly, but the experience feels broken. No backend optimization in the world can fix that — it's a frontend problem.
+
+> A product doesn't feel fast because of your architecture. It feels fast because someone on the frontend *made* it feel fast.
+
+## The False Hierarchy
+
+Why does the engineering community rank backend over frontend? Is it ego? Gatekeeping? Misunderstanding of complexity?
+
+I think it's a mix of things. Backend work feels "serious" because it deals with data, security, and scale — things that sound important in meetings. Frontend work gets reduced to "making things pretty," which undersells the actual complexity involved.
+
+But it goes deeper than perception. Think about how our industry reinforces this:
+
+- **Interviews** reward system design over product thinking. You'll spend 45 minutes designing a URL shortener, but nobody asks how the user will interact with it.
+- **Team structures** often split into "core engineering" (backend) and "UI team" (frontend), implicitly ranking one over the other.
+- **Metrics are biased**: backend improvements are easy to quantify ("we reduced latency by 40%"), while frontend improvements like "the checkout flow feels smoother" are harder to put in a spreadsheet.
+
+People hate centering a div and dealing with responsiveness, and they assume that's all frontend is about. But frontend has its own hard problems: rendering performance, complex state management, accessibility, cross-browser compatibility, and those problems directly affect whether your users stay or leave.
+
+## What To Focus On?
+
+For me, you need to focus on what matters **at a given time**.
+
+- **Struggling with deployment?** If you can't figure out how Docker containers work, or how to deploy safely without compatibility issues, **study infrastructure and Docker**.
+- **Users aren't sticking around?** If you have a really strong backend, but can't hook users or make them enjoy your app, **study frontend and how to improve UI/UX**.
+- **Slow performance?** If users love the experience on your website, but your dashboard takes 30s to load, **study how to optimize your backend and reduce that load time**.
+
+Think about it like this: your product's weakest layer is the one holding it back. Not the one that sounds the least impressive on a resume — the one that's actually losing you users right now. That's where your time should go.
+
+You don't need to be an expert in everything. But you need enough understanding across the stack to spot where the real problem is and unblock yourself. That's the product mindset again: not "what's my specialty?" but "what does this product need from me right now?"
+
+It's not about setting up infrastructure, building a tremendously scalable and reliable backend, or building the most beautiful UI in the world. It's about **building products that make sense** and **focusing on what matters**.
+
+---
+
+## Conclusion
+
+Go back up and toggle the comparison one more time. Same content, same features, same backend — completely different product. That's the gap between "it works" and "people want to use it," and no amount of infrastructure can close it.
+
+The best engineers don't pick a side. They ship the full experience. That's why I call myself a Product Engineer, and if you've read this far, you probably think the same way.
+
+If this resonated with you, give it a like and share it with someone who needs to read it.
+
+Farewell!
