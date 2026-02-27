@@ -11,6 +11,7 @@ export const WordWithTooltip = ({ children, tooltip }: WordWithTooltipProps) => 
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<"top" | "bottom">("top");
   const wrapperRef = useRef<HTMLSpanElement>(null);
+  const lastPointerType = useRef<string>("mouse");
 
   useEffect(() => {
     if (visible && wrapperRef.current) {
@@ -19,13 +20,33 @@ export const WordWithTooltip = ({ children, tooltip }: WordWithTooltipProps) => 
     }
   }, [visible]);
 
+  useEffect(() => {
+    if (!visible) return;
+
+    const handleOutsideClick = (e: PointerEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setVisible(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsideClick);
+    return () => document.removeEventListener("pointerdown", handleOutsideClick);
+  }, [visible]);
+
   return (
     <span
       ref={wrapperRef}
       className="group/tooltip relative inline-block cursor-help border-b border-dotted border-muted-foreground"
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      onClick={() => setVisible((prev) => !prev)}
+      onPointerEnter={(e) => {
+        lastPointerType.current = e.pointerType;
+        if (e.pointerType !== "touch") setVisible(true);
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType !== "touch") setVisible(false);
+      }}
+      onClick={() => {
+        if (lastPointerType.current === "touch") setVisible((prev) => !prev);
+      }}
     >
       {children}
       <span
