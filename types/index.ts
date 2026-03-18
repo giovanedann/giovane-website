@@ -22,6 +22,7 @@ export interface PostCard {
   long_description: string;
   date: string;
   tags: string[];
+  updated?: string;
   image?: string;
   readingTime: string;
 }

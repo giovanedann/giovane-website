@@ -9,6 +9,7 @@ import { FormattedDate } from "@/components/ui/formatted-date";
 import { FloatingSocials } from "@/components/blog/floating-socials";
 import { LikeButton } from "@/components/blog/like-button";
 import { CommentsSection } from "@/components/blog/comments-section";
+import { JsonLd } from "@/components/json-ld";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -36,10 +37,17 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       title: post.title,
       description: post.short_description,
       type: "article",
+      url: `/blog/${slug}`,
       publishedTime: post.date,
       modifiedTime: post.updated,
       authors: ["Giovane Saes"],
       tags: post.tags,
+      images: post.image
+        ? [{ url: post.image }]
+        : [{ url: "/android-chrome-512x512.png", width: 512, height: 512 }],
+    },
+    alternates: {
+      canonical: `/blog/${slug}`,
     },
   };
 }
@@ -54,6 +62,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.short_description,
+          datePublished: post.date,
+          dateModified: post.updated ?? post.date,
+          author: {
+            "@type": "Person",
+            name: "Giovane Saes",
+            url: "https://giovanes.dev",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Giovane Saes",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://giovanes.dev/android-chrome-512x512.png",
+            },
+          },
+          keywords: post.tags,
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `https://giovanes.dev/blog/${slug}`,
+          },
+        }}
+      />
       <article className="mx-auto max-w-3xl px-6 py-16">
         <Link
           href="/blog"

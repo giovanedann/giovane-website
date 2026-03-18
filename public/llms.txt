@@ -1,0 +1,34 @@
+# giovanes.dev
+
+> Personal website of Giovane Saes — Product & AI Engineer based in São Paulo, Brazil.
+
+## About
+
+This site serves three distinct audiences:
+
+1. **Engineers & Tech People** — A blog with technical posts about software engineering, AI, and building products.
+2. **Recruiters** — A professional portfolio showcasing experience, projects, and technologies.
+3. **Wanderers** — A typing roguelike game called "Type to Survive."
+
+## Author
+
+- Name: Giovane Saes
+- Role: Product & AI Engineer
+- Location: São Paulo, Brazil
+- GitHub: https://github.com/giovanedaniel
+- LinkedIn: https://linkedin.com/in/giovanesaes
+
+## Key Pages
+
+- Homepage: https://giovanes.dev
+- Blog: https://giovanes.dev/blog
+- About / Portfolio: https://giovanes.dev/about
+- Typing Game: https://giovanes.dev/game
+
+## Blog Topics
+
+- Software engineering
+- Artificial intelligence
+- Product development
+- TypeScript & React
+- System design

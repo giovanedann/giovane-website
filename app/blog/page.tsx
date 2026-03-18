@@ -2,10 +2,20 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 import { BlogList } from "@/components/blog/blog-list";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Blog | Giovane Saes",
-  description: "Technical posts about software engineering, AI, and building great products.",
+  description:
+    "Technical posts about software engineering, AI, and building great products.",
+  openGraph: {
+    title: "Blog | Giovane Saes",
+    description:
+      "Technical posts about software engineering, AI, and building great products.",
+  },
+  alternates: {
+    canonical: "/blog",
+  },
 };
 
 export default function BlogPage() {
@@ -13,6 +23,16 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: "Blog | Giovane Saes",
+          description:
+            "Technical posts about software engineering, AI, and building great products.",
+          url: "https://giovanes.dev/blog",
+        }}
+      />
       <div className="mx-auto max-w-3xl px-6 py-16">
         <div className="mb-12">
           <Link

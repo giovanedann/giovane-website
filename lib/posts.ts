@@ -60,6 +60,7 @@ export function getAllPosts(): PostCard[] {
         long_description: frontmatter.long_description,
         date: frontmatter.date,
         tags: frontmatter.tags,
+        updated: frontmatter.updated,
         image: frontmatter.image,
         readingTime: readingTime(content).text,
       };
