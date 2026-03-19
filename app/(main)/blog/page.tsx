@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 import { BlogList } from "@/components/blog/blog-list";
 import { JsonLd } from "@/components/json-ld";
@@ -35,12 +34,6 @@ export default function BlogPage() {
       />
       <div className="mx-auto max-w-3xl px-6 py-16">
         <div className="mb-12">
-          <Link
-            href="/"
-            className="mb-8 inline-flex items-center text-muted-foreground hover:text-foreground"
-          >
-            ← Back to home
-          </Link>
           <h1 className="text-4xl font-bold text-foreground md:text-5xl">
             Blog
           </h1>

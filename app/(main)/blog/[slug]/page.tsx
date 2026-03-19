@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import { getPostBySlug, getPostSlugs } from "@/lib/posts";
@@ -91,13 +90,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }}
       />
       <article className="mx-auto max-w-3xl px-6 py-16">
-        <Link
-          href="/blog"
-          className="mb-8 inline-flex items-center text-muted-foreground hover:text-foreground"
-        >
-          ← Back to blog
-        </Link>
-
         <header className="mb-12">
           <h1 className="text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
             {post.title}

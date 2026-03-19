@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { AboutSection } from "@/components/portfolio/about-section";
 import { ExperienceSection } from "@/components/portfolio/experience-section";
 import { ProjectsSection } from "@/components/portfolio/projects-section";
@@ -58,14 +56,6 @@ export default function AboutPage() {
         }}
       />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to home
-        </Link>
-
         <AboutSection />
         <ExperienceSection />
         <ProjectsSection />
