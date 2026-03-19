@@ -46,6 +46,9 @@ next-env.d.ts
 # claude agents cache
 .claude/agents/
 
+# superpowers brainstorm sessions
+.superpowers/
+
 # claude-mem CLAUDE.md files (keep root CLAUDE.md)
 **/CLAUDE.md
 !/CLAUDE.md
