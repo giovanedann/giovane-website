@@ -15,6 +15,7 @@ import {
 } from "./dynamodb";
 import { UIComparison } from "./ui-comparison";
 import { WordWithTooltip } from "./word-with-tooltip";
+import { RAGVisual, EmbeddingsVisual, ContextWindowVisual } from "./ai-concepts";
 
 export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
@@ -94,4 +95,7 @@ export const mdxComponents: MDXComponents = {
   WideColumnStoreVisual,
   UIComparison,
   WordWithTooltip,
+  RAGVisual,
+  EmbeddingsVisual,
+  ContextWindowVisual,
 };

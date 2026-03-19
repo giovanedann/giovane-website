@@ -1,0 +1,410 @@
+---
+title: "AI Concepts to Know as a Software Engineer"
+short_description: "Agents, RAG, embeddings, prompt engineering, and LLM observability: the AI concepts you actually need to build with AI in 2026."
+long_description: "AI is reshaping how we build software, and keeping up with the concepts can feel overwhelming. This post cuts through the noise and breaks down what actually matters: how agents work and take actions, what RAG and embeddings do in practice, how context windows affect your AI's behavior, and why observability and evals are non-negotiable for production systems. No PhD required, just practical knowledge from real projects you can start applying today."
+date: "2026-03-18"
+tags:
+  [
+    "ai",
+    "llm",
+    "agents",
+    "rag",
+    "embeddings",
+    "prompt-engineering",
+    "structured-output",
+    "observability",
+  ]
+topics:
+  [
+    "Introduction",
+    "Agents",
+    "RAG",
+    "Embeddings",
+    "Context Window & Prompt Engineering",
+    "Structured Output",
+    "LLM Observability & Evals",
+    "Conclusion",
+  ]
+published: true
+---
+
+> **TL;DR:** This post breaks down the AI practical concepts you need (agents, RAG, embeddings, prompt engineering, and observability) with real examples from production projects.
+>
+> **What to expect:**
+>
+> - How AI agents work and how to keep them under control
+> - What RAG actually is (and what it isn't)
+> - A practical use case for embeddings that saves money
+> - Why context windows matter and how to write better prompts
+> - How to monitor and test AI features in production
+
+## Introduction
+
+Hey folks, it's been a while since my last post. I was playing the new Path of Exile league. But here I am. Let's talk about something I'm excited about: AI Engineering.
+
+In this post, I'll cover the topics that I think are essential for you as a software engineer in 2026, and help you understand how to actually implement AI in the products you build.
+
+---
+
+## AI Agents
+
+So, first of all, let's understand what AI agents are. In [How AIs Learn](/blog/how-ais-learn), I explained what LLMs are. There's a limited amount of knowledge baked into any base model. And since training is expensive, it's impractical to keep retraining every time new information appears. After all, the internet gets flooded with new content every single day.
+
+The moment you give an LLM the power to decide and take actions (like searching Google, modifying files, or calling APIs) it becomes an Agent. That's why the term "Agentic Platforms" is everywhere right now. Agentic platforms give AI the ability to write, read, modify, and delete data.
+
+Yes, giving an AI write and delete permissions can be dangerous, but it's increasingly common, and there are ways to mitigate the risks.
+
+So now that you understand what agents are, let's talk about how you avoid a `DELETE` without `WHERE`, an `UPDATE` that hits every row, or an insert into the wrong user's account.
+
+### Function/Tool Calling
+
+Function Calling (or Tool Calling) is the mechanism that makes agents actually useful. Without it, an LLM can only generate text. With it, the LLM can take actions.
+
+Here's how it works: instead of asking the model to respond with plain text, you describe a set of functions it can use: their names, what they do, and what parameters they accept. The model doesn't execute these functions directly. It returns a structured JSON saying "I want to call this function with these arguments." Your application then executes the function and feeds the result back to the model.
+
+This is the key insight: the AI never touches your database, your API, or your filesystem directly. Your code is always the middleman. That's how you keep control.
+
+For example, at [Plim](https://plim.app.br), when a user asks something like "how much did I spend on food last month?", the LLM doesn't get raw access to the database. I give it the schema, and it generates a SQL query. My backend validates and executes it using a read-only database connection, returns the result, and the LLM formats a human-friendly response. For writes, like creating a transaction or updating a budget, I use specific tool definitions with strict parameters. The AI can call `create_transaction(amount, category, date)`, but it can never write raw SQL for mutations. That's the guardrail.
+
+This pattern (describe tools, let the AI choose which to call, execute on your side) is what turns a chatbot into something that can actually do things. And because you control the execution layer, you decide exactly how much power to give it.
+
+### Coding Agents
+
+I'm pretty sure you've already heard about Claude Code, Antigravity, or Cursor. They're loved by engineers, and the reason is simple: they are coding agents.
+
+There was a time when if you had a 5-hour deadline to plan a project and create an MVP, you needed to spend 2.5 hours architecting, and 2.5 hours executing. Coding agents allow you to split that into 4 hours architecting, and 1 hour executing.
+
+That's because Coding Agents do the boring and slow part: writing code. Let's be real, even if you score 200 wpm on MonkeyType, you're not going to write nearly as fast as AIs do.
+
+But, as I always say:
+
+> AIs should be our fingers, not our brains.
+
+So now, we have much more time to architect, think about edge cases, security, scalability, etc.
+
+I particularly do not manually write code anymore. I architect the solution, and coding agents handle the implementation.
+
+Now that we've covered how agents take actions, let's talk about how they get the data they need to act on.
+
+## RAG
+
+RAG stands for Retrieval-Augmented Generation. In simple terms, it means grabbing data from somewhere and injecting it into the AI's context before it responds.
+
+Let me give you a real example. Remember the Plim example from the Agents section? Same system, different lens. Agents are about _what actions the AI can take_. RAG is about _how data gets into the prompt_. When a user asks "how much did I spend on food last month?", the AI doesn't magically know the answer. It wasn't trained on that user's data. So what happens is: my backend retrieves the relevant transactions from the database, injects that data into the prompt, and the AI generates a response based on it. That's RAG. You retrieve, you augment, you generate.
+
+Now, here's something most tutorials get wrong: RAG does not require embeddings or vector databases. That's one way to do it, but it's not the only way. The retrieval step is entirely dependent on what you're querying. If the data is structured and lives in a database, a SQL query is enough. If the data is unstructured (PDFs, documentation pages, or wiki articles) you'll need semantic search with embeddings. If the data lives behind a third-party service, an API call works. The retrieval strategy is dictated by the data, not by the pattern itself.
+
+<RAGVisual />
+
+### Simple RAG: Structured Data
+
+The Plim example above is the simplest form of RAG. The data is structured, lives in a database, and you know exactly how to query it. This is a great starting point, and honestly, it's enough for a lot of use cases:
+
+```typescript
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+async function askWithRAG(userQuestion: string, userId: string) {
+  // 1. Retrieve — grab relevant data from your database
+  const transactions = await db.query(
+    "SELECT * FROM transactions WHERE user_id = $1 AND date >= NOW() - INTERVAL '1 month'",
+    [userId],
+  );
+
+  // 2. Augment — inject the retrieved data into the prompt
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: `Here are the user's recent transactions:
+${JSON.stringify(transactions)}
+
+Based on this data, answer: ${userQuestion}`,
+  });
+
+  // 3. Generate — the AI responds using the injected context
+  return response.text;
+}
+```
+
+But let's be real: this is the easy case. You have a SQL table, you write a query, you get rows back. What happens when the data you need isn't structured at all?
+
+### Real-World RAG: Unstructured Data
+
+Imagine you're building an internal tool for a company. Employees ask questions like "what's our parental leave policy?" or "how do I request a VPN token?". The answers live in HR documents, onboarding PDFs, Confluence pages, Notion wikis, scattered across dozens of unstructured sources. You can't write a SQL query for that.
+
+This is where RAG gets real, and where embeddings come in. The idea is:
+
+1. **Ingest** — You take all those documents, split them into smaller chunks (paragraphs, sections, pages), and generate an embedding for each chunk. You store these embeddings in a vector database like pgvector, Pinecone, or Weaviate.
+2. **Search** — When a user asks a question, you generate an embedding of their question and search the vector database for the chunks that are most semantically similar. "What's our parental leave policy?" will match the chunk from the HR handbook that talks about parental leave, even if it never uses the exact words from the question.
+3. **Inject and generate** — You take the top matching chunks, inject them into the prompt as context, and let the AI generate a response grounded in your actual company data.
+
+Here's what that looks like in code:
+
+```typescript
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+async function askCompanyDocs(question: string) {
+  // 1. Generate an embedding for the user's question
+  const questionEmbedding = await ai.models.embedContent({
+    model: "text-embedding-004",
+    contents: question,
+  });
+
+  const vector = questionEmbedding.embeddings[0].values;
+
+  // 2. Search for the most relevant document chunks (cosine similarity)
+  const relevantChunks = await db.query(
+    `SELECT content, source, similarity
+     FROM document_chunks
+     ORDER BY embedding <=> $1 -- cosine distance: 0 = identical, 2 = opposite
+     LIMIT 5`,
+    [JSON.stringify(vector)],
+  );
+
+  // 3. Inject the chunks into the prompt as context
+  const context = relevantChunks.rows
+    .map((chunk) => `[Source: ${chunk.source}]\n${chunk.content}`)
+    .join("\n\n");
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    config: {
+      systemInstruction: `You are a helpful assistant that answers questions based on company documentation.
+Only answer based on the provided context. If the context doesn't contain the answer, say so.`,
+    },
+    contents: `Context:\n${context}\n\nQuestion: ${question}`,
+  });
+
+  return response.text;
+}
+```
+
+The difference is clear: with structured data, you retrieve with a SQL query. With unstructured data, you retrieve with semantic search. But the pattern is the same: retrieve, augment, generate.
+
+Another example: imagine your LLM was trained with documentation from Zod v3. Next week, Zod v4 drops with breaking changes. You're not going to retrain the model, that's expensive and impractical. But you can chunk the new documentation, embed it, store it in a vector database, and now the AI can answer questions about Zod v4 by searching for the relevant chunks. Or, for something simpler, you can just fetch the raw docs and inject them directly into the prompt. Both are RAG. The tradeoff is clear: injecting raw docs is simpler to implement, but it eats through your context window fast. Embeddings with vector search scale much better when you're dealing with large volumes of documents, because you only inject the relevant chunks instead of everything.
+
+So, to summarize: RAG is not a specific technology. It's a pattern. How you retrieve is dictated by what you're retrieving: SQL for structured data, semantic search for unstructured documents, API calls for external services. The retrieval step changes, but the pattern stays the same: retrieve, augment, generate.
+
+Speaking of semantic search, let's dig into how embeddings actually work and what else you can do with them.
+
+## Embeddings
+
+If you've ever read about embeddings, you probably saw an explanation like "words are converted into vectors in a multidimensional space." That's technically correct, but it doesn't tell you why you should care.
+
+Let me give you a practical reason to care: saving money.
+
+At [Plim](https://plim.app.br), every time a user asks something like "how much did I spend last month?", that triggers an LLM call to figure out what the user wants, generate the right query, and return a response. LLM calls cost money.
+
+And here's the thing: most users ask very similar questions. "How much did I spend last month?" and "Show me last month's spending" have the same intent. They would generate the exact same query on the backend.
+
+So, instead of making a new LLM call every time, I use embeddings to cache intents. Here's how it works:
+
+1. **First request** — The LLM processes it normally and generates the function call (the query, the tool, whatever it needs).
+2. **Cache the intent** — I create an embedding of that prompt and store it in a pgvector table alongside the generated function call.
+3. **Subsequent requests** — I generate an embedding of the new input and compare it against what's already stored. If the similarity is high enough, I skip the LLM call entirely and reuse the cached function call.
+
+The result: same response, faster execution, lower cost. The AI only gets involved when it actually needs to think.
+
+That's what embeddings are at their core. They turn text into numbers in a way that preserves meaning, so you can compare how similar two pieces of text are. Two sentences that mean the same thing will have embeddings that are close together. Two sentences with completely different meanings will be far apart.
+
+Most people learn about embeddings in the context of vector search or RAG. Those are valid use cases. But if you're building a product and trying to keep your AI costs under control, intent caching is one of the things that you can use embeddings for.
+
+<EmbeddingsVisual />
+
+Here's a simplified version of how intent caching with embeddings works. You generate an embedding, check for a similar cached one, and only call the LLM if nothing matches:
+
+```typescript
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+async function handleUserMessage(userMessage: string) {
+  // 1. Generate an embedding for the user's input
+  const embedding = await ai.models.embedContent({
+    model: "text-embedding-004",
+    contents: userMessage,
+  });
+
+  const vector = embedding.embeddings[0].values;
+
+  // 2. Search for a similar cached intent (cosine distance via pgvector)
+  const cached = await db.query(
+    "SELECT function_call FROM intent_cache WHERE embedding <=> $1 < 0.1 LIMIT 1", // cosine distance: < 0.1 means very similar
+    [JSON.stringify(vector)],
+  );
+
+  // 3. If we have a match, skip the LLM entirely
+  if (cached.rows.length > 0) {
+    return executeFunctionCall(cached.rows[0].function_call);
+  }
+
+  // 4. No match — let the LLM process the request
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: userMessage,
+  });
+
+  const functionCall = parseFunctionCall(response);
+
+  // 5. Cache the intent for future requests
+  await db.query(
+    "INSERT INTO intent_cache (embedding, function_call) VALUES ($1, $2)",
+    [JSON.stringify(vector), JSON.stringify(functionCall)],
+  );
+
+  return executeFunctionCall(functionCall);
+}
+```
+
+Embeddings help you handle data efficiently, but all that data has to go somewhere. Let's talk about the container itself.
+
+## Context Window & Prompt Engineering
+
+If you're an engineer, I bet this has happened to you. You've talked so much with Claude Code that it started to look dumb and do stupid things. Like, forgetting, doing something you told it not to do, etc. That's because of the Context Window.
+
+Let's break down what it is and how to write better prompts.
+
+### Context Window
+
+The context window is like your short-term memory. Have you ever been in one of those 2-hour meetings where you absorb everything in the first 5 minutes, but by the 45th minute, you don't remember anything from the start? That's the same thing with LLMs.
+
+Every LLM has a limited context window. Claude, for example, recently increased the token window to 1M. That sounds like a lot, but when you're feeding it an entire codebase, conversation history, and instructions, it fills up fast.
+
+And when it does, the _application layer_ — not the model itself — decides what to do. It might summarize older messages, truncate the conversation history, or drop earlier context before sending the next API call. The model only sees exactly what's in the prompt it receives. That's why it sometimes feels like the AI "lost memory." It didn't forget — the application just stopped including the beginning of the conversation. Some providers handle this at the API level with automatic summarization, but the principle is the same: older context gets compressed or dropped.
+
+There's also a well-known phenomenon called "lost in the middle" — even within the context window, models tend to pay more attention to the beginning and end of the prompt, and can miss information buried in the middle. So it's not just about fitting everything in; it's about where you place the most important context.
+
+The more context you give, the better, but not always. The more text the AI has to process, the more it can make mistakes, confuse itself, or hallucinate. The ideal scenario is to split big tasks into smaller ones, and after each, clear the context and save the most relevant information to a shared context (like a CLAUDE.md file or a system prompt). This way you avoid overloading the context window and keep the AI focused.
+
+<ContextWindowVisual />
+
+### Prompt Engineering
+
+Prompt Engineering is treated as a joke because some people treat it as a job, not a skill. "Prompt Engineer" as a role can indeed be funny, because it doesn't make much sense. But Prompt Engineering as a skill is real, and you should not mock it, but learn it.
+
+Prompt Engineering is like any engineering: trying to extract the most out of something with your knowledge. In this case, it's the ability to write better prompts so the AI generates the best possible output.
+
+By that, I mean: writing a detailed prompt instead of a vague one, providing examples, setting expectations. While researching, I found that there are several frameworks for writing prompts, a few examples:
+
+- **ERA** — Expectation, Role, Action
+- **CARE** — Context, Action, Result, Example
+- **RACE** — Role, Action, Context, Expectation
+- **APE** — Action, Purpose, Expectation
+
+They differ, but they all boil down to the same structure: tell the AI what role it plays, give it context, be specific about what you expect, how you expect it to be done (which programming language, libraries, etc), and show examples when possible.
+
+There's also something called Chain-of-Thought (CoT), which is a different kind of technique. The idea is to get the model to reason through intermediate steps before arriving at an answer, rather than jumping straight to the conclusion. You can trigger this explicitly by prompting "think step by step" or "explain your reasoning before answering." A practical example is Claude Code's plan mode, where the AI breaks down the problem, asks clarifying questions, and explains its approach before writing or modifying any code. This forces the model to show its work, which reduces errors and usually leads to better results.
+
+Some studies also show that adding a persona to your prompts can improve outcomes. Something like "You're a Staff Software Engineer at a top tech company" can push the model to generate more senior-level responses. It sounds silly, but it works.
+
+## Structured Output
+
+When you're using AI in a product, you usually don't want free-form text back. You want structured data you can actually work with: JSON, specific fields, predictable formats.
+
+That's what Structured Output (or JSON mode) gives you. Instead of the model returning "The user spent $150 on groceries last month," it returns:
+
+```json
+{
+  "category": "groceries",
+  "amount": 150,
+  "period": "last_month",
+  "currency": "USD"
+}
+```
+
+Your application can parse that, display it in a chart, store it in a database, whatever you need. No regex, no string parsing, no hoping the model formatted things correctly.
+
+This connects directly to tool calling from the Agents section. When an LLM decides to call a function, it's returning structured JSON: the function name, the arguments, the types. Structured output is what makes that reliable. Without it, tool calling would be fragile, because you'd be parsing free text and praying the model got the format right.
+
+Most major providers support this natively. You define a schema (usually JSON Schema), and the model is constrained to output only valid JSON matching that schema. It's one of those features that sounds simple but changes everything when you're building real products.
+
+Prompts and structured outputs control what goes in and what comes out. But how do you know if any of it is actually working?
+
+## LLM Observability & Evals
+
+### LLM Observability
+
+When you build a traditional API, observability is "straightforward". You monitor response times, error rates, status codes. If something breaks, you get a 500 and a stack trace. With LLMs, it's different. The API returns a 200, the response looks fine, but the AI just told your user they spent $500 on groceries when the real number was $50. No error. No stack trace. Just a wrong answer.
+
+That's why LLM observability is its own discipline. You're not just monitoring if the system is up. You're monitoring if the system is right.
+
+At Plim, I use PostHog to track how the AI features are performing:
+
+- **Tool usage** — Which tools the AI is calling, and how often
+- **Fallback rate** — How often it falls back to a generic response
+- **Prompt quality** — What prompts are generating unexpected outputs
+- **User reactions** — How users are reacting to the AI's answers
+
+Here's what that looks like in practice. This is a simplified version of how I capture AI generation metrics at Plim using PostHog:
+
+```typescript
+import { PostHog } from "posthog-node";
+
+const posthog = new PostHog(process.env.POSTHOG_API_KEY);
+
+function captureAIGeneration({
+  userId,
+  model,
+  prompt,
+  output,
+  latencyMs,
+  inputTokens,
+  outputTokens,
+  toolsCalled,
+}: {
+  userId: string;
+  model: string;
+  prompt: string;
+  output: string;
+  latencyMs: number;
+  inputTokens: number;
+  outputTokens: number;
+  toolsCalled: string[];
+}) {
+  posthog.capture({
+    distinctId: userId,
+    event: "ai_generation",
+    properties: {
+      $ai_model: model,
+      $ai_input: prompt,
+      $ai_output: output,
+      $ai_latency: latencyMs,
+      $ai_input_tokens: inputTokens,
+      $ai_output_tokens: outputTokens,
+      $ai_tools_called: toolsCalled,
+    },
+  });
+}
+```
+
+Every AI call gets tracked: which model, what prompt, what the output was, how long it took, how many tokens it used, and which tools were called. When something goes wrong, you can trace it back to the exact prompt and response. This is not optional if you're shipping AI to real users. You need to know what the AI is doing, not just that it's running.
+
+### Evals
+
+Evals are basically tests for your AI. But unlike unit tests, where you check if a function returns the right value, evals are fuzzier. You're checking if the AI's response is good enough. Did it answer the question? Did it hallucinate? Did it use the right tool? Did it follow the instructions in the system prompt?
+
+There are different ways to run evals:
+
+- **Human-as-a-Judge** — You manually review outputs yourself. Slow, but gives you the best signal early on.
+- **AI-as-a-Judge** — You use another LLM to judge the quality of the first LLM's response. Scalable, but requires careful calibration.
+- **Automated checks** — You build end-to-end tests for specific criteria, like "did the response contain a SQL query" or "did it stay under 200 tokens."
+
+The important thing is: if you're building AI features and you're not evaluating outputs, you're shipping blind. You wouldn't deploy a backend without logging. Don't deploy an AI without observability and evals. Remember, LLM outputs are probabilistic, so the same input can produce a wide range of different outputs.
+
+---
+
+## Conclusion
+
+AI is not something you learn once and you're done. The landscape changes fast, but the concepts in this post (agents, RAG, embeddings, context management, structured output, observability) are foundational. New frameworks and techniques will keep appearing, and understanding these building blocks will help you evaluate them instead of chasing every new thing.
+
+You don't need to master all of them, but you should understand them well enough to make decisions. How much power should I give my agent? How do I know if my AI feature is actually working? Those are the questions that separate engineers who use AI from engineers who build with AI.
+
+What excites me most right now is how fast the developer tooling is maturing. A year ago, building with AI meant stitching together raw API calls and hoping for the best. Now we have proper observability, structured outputs, and evaluation frameworks. We're moving from "it works sometimes" to actual engineering discipline, and that's where it gets really interesting.
+
+If you want to see many of these concepts working together in a real product, check out [Plim](https://plim.app.br), it's where I apply agents, RAG, embeddings, and observability to solve real problems for real users.
+
+If this post helped you learn something, consider leaving a like and sharing it with your friends.
+
+Farewell!
