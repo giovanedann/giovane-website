@@ -26,3 +26,15 @@ export interface PostCard {
   image?: string;
   readingTime: string;
 }
+
+export type BookStatus = "reading" | "not-started" | "completed";
+
+export interface Book {
+  title: string;
+  author: string;
+  description: string;
+  status: BookStatus;
+  currentPage: number;
+  totalPages: number;
+  relatedPosts?: string[];
+}
