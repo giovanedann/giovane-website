@@ -24,11 +24,33 @@ Apply fixes to a blog post based on review feedback while preserving the author'
 - Reorganize bullet points for clarity
 - Break up long paragraphs if they cover multiple ideas
 
+### Bullet Point & List Formatting (Auto-apply)
+
+Upgrade plain bullet lists to use **bold labels** when items have distinct concepts:
+
+- **Plain lists** (simple enumerations) → Keep as-is with `-`
+- **Concept lists** (items with explanations) → Use `- **Label** — Explanation`
+- **Sequential steps** → Use numbered lists with `1. **Step name** — Description`
+- **Framework/acronym lists** → Use `- **ACRONYM** — Expansion or description`
+
+**When to upgrade:**
+- 3+ items where each has a distinct name/label and an explanation
+- Process steps that happen in order
+- Technical terms being defined or compared
+
+**When NOT to upgrade:**
+- Short lists of simple items (e.g., a list of tags or names)
+- Lists where items are single words or short phrases with no explanation
+- Lists that are already well-formatted
+
 ### Post Structure Enhancements (Auto-apply)
 
 Add these structural elements to improve readability:
 
-**1. TL;DR + What to Expect (at the top, after frontmatter):**
+**1. TL;DR + What to Expect (immediately after frontmatter, before ## Introduction):**
+
+The TL;DR block goes right after the `---` closing the frontmatter, before the first heading. This is consistent across all posts.
+
 ```markdown
 > **TL;DR:** One sentence summary of the post's main message.
 >
@@ -71,7 +93,7 @@ Farewell.
 
 Add visual variety to break up walls of text, but only where it makes sense:
 
-- **Bullet points with bold labels** → For lists of items with explanations
+- **Bullet points with bold labels** → For lists of items with explanations (`- **Label** — Explanation`)
 - **Numbered lists** → For sequential steps or ordered items
 - **Code blocks** → For commands, file paths, or technical references
 - **Blockquotes** → For key insights or memorable quotes from the post
