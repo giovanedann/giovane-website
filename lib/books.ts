@@ -7,7 +7,7 @@ export const books: Book[] = [
     description:
       "A comprehensive guide to building applications with foundation models, covering evaluation, RAG, agents, and production deployment of AI systems.",
     status: "reading",
-    currentPage: 363,
+    currentPage: 405,
     totalPages: 528,
     relatedPosts: [
       "ai-concepts-to-know-as-a-software-engineer",
