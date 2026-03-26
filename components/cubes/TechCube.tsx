@@ -5,23 +5,19 @@ import { useFrame, ThreeEvent } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { RigidBody, RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
-import { useCanvasTexture } from "./useCanvasTexture";
 
 interface TechCubeProps {
-  name: string;
-  color: string;
   position: [number, number, number];
   rotation?: [number, number, number];
+  size?: number;
 }
 
-const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps) => {
+const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
-  const meshRef = useRef<THREE.Mesh>(null!);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const dragPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
   const dragOffset = useRef(new THREE.Vector3());
-  const texture = useCanvasTexture(name, color);
 
   const floatSeed = useRef({
     xFreq: 0.3 + Math.random() * 0.4,
@@ -52,7 +48,7 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
 
     const t = state.clock.elapsedTime;
     const s = floatSeed.current;
-    const force = 0.015;
+    const force = 0.012;
     rigidBodyRef.current.applyImpulse(
       {
         x: Math.sin(t * s.xFreq + s.xPhase) * force,
@@ -62,7 +58,7 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
       true
     );
 
-    const torque = 0.003 * s.rotSpeed;
+    const torque = 0.002 * s.rotSpeed;
     rigidBodyRef.current.applyTorqueImpulse(
       {
         x: Math.sin(t * 0.5 + s.xPhase) * torque,
@@ -117,8 +113,8 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
       rigidBodyRef.current.setBodyType(0, true);
 
       const throwDirection = new THREE.Vector3(
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 3,
+        (Math.random() - 0.5) * 3,
         (Math.random() - 0.5) * 2
       );
       rigidBodyRef.current.applyImpulse(
@@ -137,13 +133,12 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
       angularDamping={1.0}
       gravityScale={0}
       colliders="cuboid"
-      restitution={0.6}
-      friction={0.3}
+      restitution={0.7}
+      friction={0.2}
     >
       <RoundedBox
-        ref={meshRef}
-        args={[0.75, 0.75, 0.75]}
-        radius={0.1}
+        args={[size, size, size]}
+        radius={0.08}
         smoothness={4}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
@@ -159,12 +154,11 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
         }}
       >
         <meshStandardMaterial
-          map={texture}
-          color={isHovered ? color : "#ffffff"}
-          metalness={0.2}
-          roughness={0.3}
-          transparent
-          opacity={isHovered ? 0.95 : 0.85}
+          color={isHovered ? "#3a3a5c" : "#1e1e32"}
+          metalness={0.6}
+          roughness={0.25}
+          emissive={isHovered ? "#4a9eff" : "#000000"}
+          emissiveIntensity={isHovered ? 0.15 : 0}
         />
       </RoundedBox>
     </RigidBody>

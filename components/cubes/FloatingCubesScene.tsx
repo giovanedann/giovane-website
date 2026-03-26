@@ -1,45 +1,40 @@
 "use client";
 
-import { useRef, useMemo, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useMemo, Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { TechCube } from "./TechCube";
-import { TECH_ITEMS } from "./cubeConfig";
 
-const generatePositions = (count: number): [number, number, number][] => {
-  const positions: [number, number, number][] = [];
-  for (let i = 0; i < count; i++) {
+const CUBE_COUNT = 35;
+
+interface CubeData {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  size: number;
+}
+
+const generateCubes = (count: number): CubeData[] => {
+  return Array.from({ length: count }, (_, i) => {
     const angle = (i / count) * Math.PI * 2;
-    const radius = 3 + Math.random() * 4;
-    const x = Math.cos(angle) * radius + (Math.random() - 0.5) * 2;
-    const y = (Math.random() - 0.5) * 5;
-    const z = -2 + Math.random() * 2;
-    positions.push([x, y, z]);
-  }
-  return positions;
-};
-
-const generateRotations = (count: number): [number, number, number][] => {
-  return Array.from({ length: count }, () => [
-    Math.random() * Math.PI * 2,
-    Math.random() * Math.PI * 2,
-    Math.random() * Math.PI * 2,
-  ] as [number, number, number]);
-};
-
-const FloatingForce = () => {
-  const time = useRef(0);
-
-  useFrame((_, delta) => {
-    time.current += delta;
+    const radius = 2.5 + Math.random() * 5;
+    return {
+      position: [
+        Math.cos(angle) * radius + (Math.random() - 0.5) * 3,
+        (Math.random() - 0.5) * 6,
+        -3 + Math.random() * 4,
+      ] as [number, number, number],
+      rotation: [
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+      ] as [number, number, number],
+      size: 0.35 + Math.random() * 0.45,
+    };
   });
-
-  return null;
 };
 
 const SceneContent = () => {
-  const positions = useMemo(() => generatePositions(TECH_ITEMS.length), []);
-  const rotations = useMemo(() => generateRotations(TECH_ITEMS.length), []);
+  const cubes = useMemo(() => generateCubes(CUBE_COUNT), []);
 
   return (
     <>
@@ -49,14 +44,12 @@ const SceneContent = () => {
       <pointLight position={[0, 0, 8]} intensity={0.4} color="#7c3aed" />
 
       <Physics gravity={[0, 0, 0]} timeStep="vary">
-        <FloatingForce />
-        {TECH_ITEMS.map((tech, i) => (
+        {cubes.map((cube, i) => (
           <TechCube
-            key={tech.name}
-            name={tech.name}
-            color={tech.color}
-            position={positions[i]}
-            rotation={rotations[i]}
+            key={i}
+            position={cube.position}
+            rotation={cube.rotation}
+            size={cube.size}
           />
         ))}
       </Physics>
