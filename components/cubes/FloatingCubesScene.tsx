@@ -39,11 +39,12 @@ const SceneContent = () => {
 
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[8, 8, 5]} intensity={1.0} color="#ffffff" />
-      <directionalLight position={[-5, 3, 3]} intensity={0.3} color="#8888ff" />
-      <pointLight position={[0, 0, 6]} intensity={0.3} />
-      <fog attach="fog" args={["#000000", 10, 25]} />
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[5, 5, 5]} intensity={0.8} />
+      <directionalLight position={[-6, 2, -3]} intensity={0.6} color="#8090ff" />
+      <directionalLight position={[4, -3, -4]} intensity={0.4} color="#9070dd" />
+      <pointLight position={[0, 3, 6]} intensity={0.5} />
+      <fog attach="fog" args={["#1a1a1a", 12, 22]} />
 
       <GridFloor />
 

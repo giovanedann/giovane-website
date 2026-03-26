@@ -164,11 +164,11 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
         }}
       >
         <meshStandardMaterial
-          color={isHovered ? "#505058" : "#38383f"}
-          metalness={0.4}
-          roughness={0.35}
+          color={isHovered ? "#555560" : "#404048"}
+          metalness={0.85}
+          roughness={0.15}
           emissive={isHovered ? "#ffffff" : "#000000"}
-          emissiveIntensity={isHovered ? 0.04 : 0}
+          emissiveIntensity={isHovered ? 0.03 : 0}
         />
       </RoundedBox>
     </RigidBody>

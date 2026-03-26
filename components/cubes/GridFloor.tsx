@@ -15,7 +15,7 @@ const GridFloor = () => {
     ctx.fillRect(0, 0, size, size);
 
     const gridSize = 32;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= size; i += gridSize) {
@@ -30,7 +30,7 @@ const GridFloor = () => {
       ctx.stroke();
     }
 
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = 1.5;
     const majorGridSize = gridSize * 4;
     for (let i = 0; i <= size; i += majorGridSize) {
