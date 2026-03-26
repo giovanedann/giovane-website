@@ -4,9 +4,6 @@ import { useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Cube } from "./Cube";
-import { GridFloor } from "./GridFloor";
-
-const CUBE_COUNT = 30;
 
 interface CubeData {
   position: [number, number, number];
@@ -14,28 +11,52 @@ interface CubeData {
   size: number;
 }
 
-const generateCubes = (count: number): CubeData[] => {
-  return Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-    const radius = 2 + Math.random() * 4.5;
-    return {
+const generateCubes = (): CubeData[] => {
+  const cubes: CubeData[] = [];
+
+  for (let i = 0; i < 30; i++) {
+    const angle = (i / 30) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+    const radius = 2.5 + Math.random() * 4;
+    cubes.push({
       position: [
         Math.cos(angle) * radius,
         (Math.random() - 0.5) * 5,
         -2 + Math.random() * 2,
-      ] as [number, number, number],
-      rotation: [
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-      ] as [number, number, number],
-      size: 0.3 + Math.random() * 0.35,
-    };
-  });
+      ],
+      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
+      size: 0.3 + Math.random() * 0.3,
+    });
+  }
+
+  for (let i = 0; i < 15; i++) {
+    cubes.push({
+      position: [
+        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * 4,
+        -4 + Math.random() * 2,
+      ],
+      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
+      size: 0.15 + Math.random() * 0.2,
+    });
+  }
+
+  for (let i = 0; i < 10; i++) {
+    cubes.push({
+      position: [
+        (Math.random() - 0.5) * 12,
+        (Math.random() - 0.5) * 8,
+        -3 + Math.random() * 1,
+      ],
+      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
+      size: 0.1 + Math.random() * 0.12,
+    });
+  }
+
+  return cubes;
 };
 
 const SceneContent = () => {
-  const cubes = useMemo(() => generateCubes(CUBE_COUNT), []);
+  const cubes = useMemo(() => generateCubes(), []);
 
   return (
     <>
@@ -45,8 +66,6 @@ const SceneContent = () => {
       <directionalLight position={[4, -3, -4]} intensity={0.4} color="#9070dd" />
       <pointLight position={[0, 3, 6]} intensity={0.5} />
       <fog attach="fog" args={["#1a1a1a", 12, 22]} />
-
-      <GridFloor />
 
       <Physics gravity={[0, 0, 0]} timeStep="vary">
         {cubes.map((cube, i) => (

@@ -16,6 +16,13 @@ const FloatingCubesScene = dynamic(
 export default function Home() {
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%)",
+        }}
+      />
       <FloatingCubesScene />
       <div className="relative z-20 flex flex-col items-center gap-8">
         <motion.h1
