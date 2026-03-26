@@ -2,6 +2,7 @@
 
 import { useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { RobotModel } from "./RobotModel";
 import { ParticleNetwork } from "./ParticleNetwork";
@@ -22,9 +23,9 @@ const SceneContent = ({
   const robotPosition = useRef(new THREE.Vector3(1.8, -0.2, 0));
   const { state: mouseState, projectToWorld } = useMouseTracking(
     robotPosition.current,
-    0
+    2
   );
-  const mouseTarget = useRef(new THREE.Vector3());
+  const mouseTarget = useRef(new THREE.Vector3(0, 0.5, 5));
 
   useFrame(({ camera }) => {
     if (mouseState.isActive) {
@@ -35,9 +36,11 @@ const SceneContent = ({
 
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 5, 5]} intensity={0.8} />
-      <directionalLight position={[-3, 2, -2]} intensity={0.2} color="#4a9eff" />
+      <Environment preset="city" />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={1.0} />
+      <directionalLight position={[-3, 2, -2]} intensity={0.3} color="#4a9eff" />
+      <directionalLight position={[0, -2, 3]} intensity={0.15} color="#7c3aed" />
       <RobotModel
         mouseTarget={mouseTarget}
         leftHandRef={leftHandRef}

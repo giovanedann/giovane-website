@@ -6,8 +6,8 @@ import * as THREE from "three";
 import { useArmIK } from "./useArmIK";
 import { RobotHand, type RobotHandRef } from "./RobotHand";
 
-const BODY_COLOR = "#1a1a2e";
-const JOINT_COLOR = "#252540";
+const BODY_COLOR = "#2a2a3e";
+const JOINT_COLOR = "#353550";
 
 const UPPER_ARM_LENGTH = 0.5;
 const FOREARM_LENGTH = 0.45;

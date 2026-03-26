@@ -4,8 +4,8 @@ import { useRef, useImperativeHandle, forwardRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const BODY_COLOR = "#1a1a2e";
-const JOINT_COLOR = "#252540";
+const BODY_COLOR = "#2a2a3e";
+const JOINT_COLOR = "#353550";
 
 interface RobotHandProps {
   side: "left" | "right";
