@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, Suspense } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Cube } from "./Cube";
@@ -76,7 +76,11 @@ const SceneContent = ({ cubes, onCubeContextMenu }: SceneContentProps) => {
 };
 
 const FloatingCubesScene = () => {
-  const [cubes, setCubes] = useState<CubeData[]>(() => generateInitialCubes());
+  const [cubes, setCubes] = useState<CubeData[]>([]);
+
+  useEffect(() => {
+    setCubes(generateInitialCubes());
+  }, []);
   const [menu, setMenu] = useState<MenuState>({
     visible: false,
     x: 0,
