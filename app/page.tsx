@@ -22,7 +22,12 @@ const JOURNEYS = [
 
 export default function Home() {
   const [cubeAction, setCubeAction] = useState<string | null>(null);
-  const [sceneVisible, setSceneVisible] = useState(true);
+  const [sceneVisible, setSceneVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSceneVisible(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
