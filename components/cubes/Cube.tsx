@@ -7,12 +7,14 @@ import { RigidBody, RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
 interface CubeProps {
+  id: string;
   position: [number, number, number];
   rotation?: [number, number, number];
   size?: number;
+  onContextMenu?: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
 }
 
-const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
+const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu }: CubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
   const [isDragging, setIsDragging] = useState(false);
   const dragPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
@@ -113,6 +115,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
   });
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    if (e.nativeEvent.button === 2) return;
     e.stopPropagation();
     (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
     setIsDragging(true);
@@ -136,6 +139,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
+    if (e.nativeEvent.button === 2) return;
     (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
     setIsDragging(false);
     document.body.style.cursor = "";
@@ -151,6 +155,22 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
       rigidBodyRef.current.applyImpulse(
         { x: throwDirection.x, y: throwDirection.y, z: throwDirection.z },
         true
+      );
+    }
+  };
+
+  const handleRightClick = (e: ThreeEvent<PointerEvent>) => {
+    if (e.nativeEvent.button !== 2) return;
+    e.stopPropagation();
+
+    const pos = rigidBodyRef.current?.translation();
+    if (pos && onContextMenu) {
+      onContextMenu(
+        id,
+        e.nativeEvent.clientX,
+        e.nativeEvent.clientY,
+        [pos.x, pos.y, pos.z],
+        size
       );
     }
   };
@@ -172,7 +192,10 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
         radius={0.08}
         smoothness={4}
         onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
+        onPointerUp={(e) => {
+          handlePointerUp(e);
+          handleRightClick(e);
+        }}
         onPointerOver={() => {
           document.body.style.cursor = "grab";
         }}
@@ -185,6 +208,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
             }
           }
         }}
+        onContextMenu={(e) => e.nativeEvent.preventDefault()}
       >
         <meshStandardMaterial
           color="#444450"
