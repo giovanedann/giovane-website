@@ -1,10 +1,8 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
-import { Physics, RigidBody, RapierRigidBody } from "@react-three/rapier";
-import * as THREE from "three";
+import { Physics } from "@react-three/rapier";
 import { TechCube } from "./TechCube";
 import { TECH_ITEMS } from "./cubeConfig";
 
@@ -45,11 +43,10 @@ const SceneContent = () => {
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 5]} intensity={0.6} />
-      <directionalLight position={[-5, -5, 5]} intensity={0.2} color="#4a9eff" />
-      <pointLight position={[0, 0, 8]} intensity={0.3} color="#7c3aed" />
-      <Environment preset="city" backgroundIntensity={0} />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={0.8} />
+      <directionalLight position={[-5, -5, 5]} intensity={0.3} color="#4a9eff" />
+      <pointLight position={[0, 0, 8]} intensity={0.4} color="#7c3aed" />
 
       <Physics gravity={[0, 0, 0]} timeStep="vary">
         <FloatingForce />
@@ -71,8 +68,8 @@ const FloatingCubesScene = () => {
   return (
     <Canvas
       camera={{ position: [0, 0, 12], fov: 50 }}
-      gl={{ antialias: true, alpha: true }}
-      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, powerPreference: "default" }}
+      dpr={[1, 1.5]}
       style={{
         position: "absolute",
         top: 0,
@@ -81,7 +78,9 @@ const FloatingCubesScene = () => {
         height: "100%",
       }}
     >
-      <SceneContent />
+      <Suspense fallback={null}>
+        <SceneContent />
+      </Suspense>
     </Canvas>
   );
 };

@@ -125,17 +125,13 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
           }
         }}
       >
-        <meshPhysicalMaterial
+        <meshStandardMaterial
           map={texture}
-          color={isHovered ? new THREE.Color(color).multiplyScalar(0.3).add(new THREE.Color("#222233")) : "#1a1a2e"}
-          metalness={0.1}
-          roughness={0.15}
-          transmission={0.4}
-          thickness={0.5}
-          ior={1.45}
+          color={isHovered ? new THREE.Color(color).multiplyScalar(0.4).add(new THREE.Color("#1a1a2e")) : "#1a1a2e"}
+          metalness={0.3}
+          roughness={0.2}
           transparent
-          opacity={isHovered ? 0.95 : 0.85}
-          envMapIntensity={1.5}
+          opacity={isHovered ? 0.95 : 0.8}
           side={THREE.FrontSide}
         />
       </RoundedBox>
