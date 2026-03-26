@@ -20,9 +20,9 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
   const dragOffset = useRef(new THREE.Vector3());
 
   const floatSeed = useRef({
-    xFreq: 0.3 + Math.random() * 0.4,
-    yFreq: 0.2 + Math.random() * 0.3,
-    zFreq: 0.1 + Math.random() * 0.2,
+    xFreq: 0.15 + Math.random() * 0.2,
+    yFreq: 0.1 + Math.random() * 0.15,
+    zFreq: 0.05 + Math.random() * 0.1,
     xPhase: Math.random() * Math.PI * 2,
     yPhase: Math.random() * Math.PI * 2,
     zPhase: Math.random() * Math.PI * 2,
@@ -48,7 +48,7 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
 
     const t = state.clock.elapsedTime;
     const s = floatSeed.current;
-    const force = 0.008;
+    const force = 0.003;
     rigidBodyRef.current.applyImpulse(
       {
         x: Math.sin(t * s.xFreq + s.xPhase) * force,
@@ -58,7 +58,7 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       true
     );
 
-    const torque = 0.0015 * s.rotSpeed;
+    const torque = 0.0006 * s.rotSpeed;
     rigidBodyRef.current.applyTorqueImpulse(
       {
         x: Math.sin(t * 0.5 + s.xPhase) * torque,
@@ -135,8 +135,8 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       ref={rigidBodyRef}
       position={position}
       rotation={rotation}
-      linearDamping={2.0}
-      angularDamping={1.5}
+      linearDamping={3.0}
+      angularDamping={2.5}
       gravityScale={0}
       colliders="cuboid"
       restitution={0.5}
