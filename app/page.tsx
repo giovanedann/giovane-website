@@ -52,7 +52,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-background touch-none">
       <motion.div
         animate={{ opacity: sceneVisible ? 1 : 0 }}
         transition={{ duration: sceneVisible ? 0.8 : 0.4 }}
@@ -103,7 +103,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 1.5 }}
-        className="absolute bottom-6 right-6 z-20 flex flex-col gap-1.5 text-[11px] text-white/25"
+        className="absolute bottom-6 right-6 z-20 hidden flex-col gap-1.5 text-[11px] text-white/25 md:flex"
       >
         <span><kbd className="rounded border border-white/10 px-1.5 py-0.5 font-mono text-white/40">Space</kbd> Explode</span>
         <span><kbd className="rounded border border-white/10 px-1.5 py-0.5 font-mono text-white/40">G</kbd> Gravity</span>
