@@ -142,8 +142,8 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
     >
       <RoundedBox
         ref={meshRef}
-        args={[1.2, 1.2, 1.2]}
-        radius={0.15}
+        args={[0.75, 0.75, 0.75]}
+        radius={0.1}
         smoothness={4}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
