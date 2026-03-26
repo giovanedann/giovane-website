@@ -15,7 +15,7 @@ const FloatingCubesScene = dynamic(
 
 export default function Home() {
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-black">
       <FloatingCubesScene />
       <div className="relative z-20 flex flex-col items-center gap-8">
         <motion.h1
