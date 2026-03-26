@@ -4,6 +4,7 @@ import { useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { TechCube } from "./TechCube";
+import { GridFloor } from "./GridFloor";
 
 const CUBE_COUNT = 35;
 
@@ -43,6 +44,8 @@ const SceneContent = () => {
       <directionalLight position={[-5, -5, 5]} intensity={0.3} color="#4a9eff" />
       <pointLight position={[0, 0, 8]} intensity={0.4} color="#7c3aed" />
 
+      <GridFloor />
+
       <Physics gravity={[0, 0, 0]} timeStep="vary">
         {cubes.map((cube, i) => (
           <TechCube
@@ -60,7 +63,7 @@ const SceneContent = () => {
 const FloatingCubesScene = () => {
   return (
     <Canvas
-      camera={{ position: [0, 0, 12], fov: 50 }}
+      camera={{ position: [0, 1, 12], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: "default" }}
       dpr={[1, 1.5]}
       style={{
