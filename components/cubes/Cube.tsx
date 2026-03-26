@@ -95,6 +95,27 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu }:
       true
     );
 
+    const mouseVec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
+    mouseVec.unproject(state.camera);
+    const mouseDir = mouseVec.sub(state.camera.position).normalize();
+    const mousePos = state.camera.position.clone().add(mouseDir.multiplyScalar(5));
+
+    const cubePos = rigidBodyRef.current.translation();
+    const toMouse = new THREE.Vector3(
+      mousePos.x - cubePos.x,
+      mousePos.y - cubePos.y,
+      0
+    );
+    const dist = toMouse.length();
+    if (dist < 4) {
+      const attractionForce = 0.0008 * (1 - dist / 4);
+      toMouse.normalize().multiplyScalar(attractionForce);
+      rigidBodyRef.current.applyImpulse(
+        { x: toMouse.x, y: toMouse.y, z: 0 },
+        true
+      );
+    }
+
     const pos = rigidBodyRef.current.translation();
     const boundsX = 7;
     const boundsY = 5;

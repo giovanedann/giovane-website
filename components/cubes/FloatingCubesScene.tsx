@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useRef, useState, useCallback, useEffect, Suspense } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
+import * as THREE from "three";
 import { Cube } from "./Cube";
 import { CubeContextMenu } from "./CubeContextMenu";
 
@@ -47,9 +48,26 @@ interface MenuState {
 interface SceneContentProps {
   cubes: CubeData[];
   onCubeContextMenu: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
+  gravityOn: boolean;
 }
 
-const SceneContent = ({ cubes, onCubeContextMenu }: SceneContentProps) => {
+const MouseLight = () => {
+  const lightRef = useRef<THREE.PointLight>(null!);
+
+  useFrame(({ pointer, camera }) => {
+    if (!lightRef.current) return;
+    const vec = new THREE.Vector3(pointer.x, pointer.y, 0.5);
+    vec.unproject(camera);
+    const dir = vec.sub(camera.position).normalize();
+    const distance = 5;
+    const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+    lightRef.current.position.copy(pos);
+  });
+
+  return <pointLight ref={lightRef} intensity={0.8} distance={6} decay={2} color="#ffffff" />;
+};
+
+const SceneContent = ({ cubes, onCubeContextMenu, gravityOn }: SceneContentProps) => {
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -57,9 +75,10 @@ const SceneContent = ({ cubes, onCubeContextMenu }: SceneContentProps) => {
       <directionalLight position={[-6, 2, -3]} intensity={0.6} color="#8090ff" />
       <directionalLight position={[4, -3, -4]} intensity={0.4} color="#9070dd" />
       <pointLight position={[0, 3, 6]} intensity={0.5} />
+      <MouseLight />
       <fog attach="fog" args={["#0a0a0a", 12, 22]} />
 
-      <Physics gravity={[0, 0, 0]} timeStep="vary">
+      <Physics gravity={gravityOn ? [0, -9.81, 0] : [0, 0, 0]} timeStep="vary">
         {cubes.map((cube) => (
           <Cube
             key={cube.id}
@@ -75,12 +94,39 @@ const SceneContent = ({ cubes, onCubeContextMenu }: SceneContentProps) => {
   );
 };
 
-const FloatingCubesScene = () => {
+interface FloatingCubesSceneOuterProps {
+  keyboardAction?: string | null;
+}
+
+const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) => {
   const [cubes, setCubes] = useState<CubeData[]>([]);
+  const [gravityOn, setGravityOn] = useState(false);
 
   useEffect(() => {
     setCubes(generateInitialCubes());
   }, []);
+
+  useEffect(() => {
+    if (!keyboardAction) return;
+
+    if (keyboardAction === "explode") {
+      setCubes(prev => prev.map(c => ({
+        ...c,
+        id: nextId(),
+        position: [
+          (Math.random() - 0.5) * 14,
+          (Math.random() - 0.5) * 10,
+          -3 + Math.random() * 3,
+        ] as [number, number, number],
+        rotation: rot(),
+      })));
+    } else if (keyboardAction === "reset") {
+      setCubes(generateInitialCubes());
+    } else if (keyboardAction === "gravity") {
+      setGravityOn(prev => !prev);
+    }
+  }, [keyboardAction]);
+
   const [menu, setMenu] = useState<MenuState>({
     visible: false,
     x: 0,
@@ -166,7 +212,7 @@ const FloatingCubesScene = () => {
         onContextMenu={(e) => e.preventDefault()}
       >
         <Suspense fallback={null}>
-          <SceneContent cubes={cubes} onCubeContextMenu={handleCubeContextMenu} />
+          <SceneContent cubes={cubes} onCubeContextMenu={handleCubeContextMenu} gravityOn={gravityOn} />
         </Suspense>
       </Canvas>
       <CubeContextMenu
