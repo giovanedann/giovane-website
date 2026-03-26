@@ -20,26 +20,9 @@ const JOURNEYS = [
   { label: "I am a wanderer", href: "/game" },
 ] as const;
 
-const fullName = "Giovane Saes";
-
 export default function Home() {
-  const [displayedName, setDisplayedName] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
   const [cubeAction, setCubeAction] = useState<string | null>(null);
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i <= fullName.length) {
-        setDisplayedName(fullName.slice(0, i));
-        i++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => setShowCursor(false), 1500);
-      }
-    }, 80);
-    return () => clearInterval(interval);
-  }, []);
+  const [sceneVisible, setSceneVisible] = useState(true);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -48,8 +31,12 @@ export default function Home() {
         setCubeAction("explode");
         setTimeout(() => setCubeAction(null), 100);
       } else if (e.code === "KeyR") {
-        setCubeAction("reset");
-        setTimeout(() => setCubeAction(null), 100);
+        setSceneVisible(false);
+        setTimeout(() => {
+          setCubeAction("reset");
+          setTimeout(() => setCubeAction(null), 100);
+          setSceneVisible(true);
+        }, 400);
       } else if (e.code === "KeyG") {
         setCubeAction("gravity");
         setTimeout(() => setCubeAction(null), 100);
@@ -61,16 +48,21 @@ export default function Home() {
 
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
-      <FloatingCubesScene keyboardAction={cubeAction} />
+      <motion.div
+        animate={{ opacity: sceneVisible ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="absolute inset-0"
+      >
+        <FloatingCubesScene keyboardAction={cubeAction} />
+      </motion.div>
       <div className="relative z-20 flex flex-col items-center gap-8">
         <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="text-5xl font-bold text-foreground md:text-7xl"
         >
-          {displayedName}
-          {showCursor && <span className="animate-pulse">|</span>}
+          Giovane Saes
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

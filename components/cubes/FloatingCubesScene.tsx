@@ -49,6 +49,7 @@ interface SceneContentProps {
   cubes: CubeData[];
   onCubeContextMenu: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
   gravityOn: boolean;
+  explodeSignal: number;
 }
 
 const MouseLight = () => {
@@ -67,7 +68,7 @@ const MouseLight = () => {
   return <pointLight ref={lightRef} intensity={0.8} distance={6} decay={2} color="#ffffff" />;
 };
 
-const SceneContent = ({ cubes, onCubeContextMenu, gravityOn }: SceneContentProps) => {
+const SceneContent = ({ cubes, onCubeContextMenu, gravityOn, explodeSignal }: SceneContentProps) => {
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -78,7 +79,7 @@ const SceneContent = ({ cubes, onCubeContextMenu, gravityOn }: SceneContentProps
       <MouseLight />
       <fog attach="fog" args={["#0a0a0a", 12, 22]} />
 
-      <Physics gravity={gravityOn ? [0, -9.81, 0] : [0, 0, 0]} timeStep="vary">
+      <Physics gravity={[0, 0, 0]} timeStep="vary">
         {cubes.map((cube) => (
           <Cube
             key={cube.id}
@@ -87,6 +88,8 @@ const SceneContent = ({ cubes, onCubeContextMenu, gravityOn }: SceneContentProps
             rotation={cube.rotation}
             size={cube.size}
             onContextMenu={onCubeContextMenu}
+            gravityOn={gravityOn}
+            explodeSignal={explodeSignal}
           />
         ))}
       </Physics>
@@ -101,6 +104,7 @@ interface FloatingCubesSceneOuterProps {
 const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) => {
   const [cubes, setCubes] = useState<CubeData[]>([]);
   const [gravityOn, setGravityOn] = useState(false);
+  const [explodeSignal, setExplodeSignal] = useState(0);
 
   useEffect(() => {
     setCubes(generateInitialCubes());
@@ -110,20 +114,12 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
     if (!keyboardAction) return;
 
     if (keyboardAction === "explode") {
-      setCubes(prev => prev.map(c => ({
-        ...c,
-        id: nextId(),
-        position: [
-          (Math.random() - 0.5) * 14,
-          (Math.random() - 0.5) * 10,
-          -3 + Math.random() * 3,
-        ] as [number, number, number],
-        rotation: rot(),
-      })));
+      setExplodeSignal((prev) => prev + 1);
     } else if (keyboardAction === "reset") {
+      setGravityOn(false);
       setCubes(generateInitialCubes());
     } else if (keyboardAction === "gravity") {
-      setGravityOn(prev => !prev);
+      setGravityOn((prev) => !prev);
     }
   }, [keyboardAction]);
 
@@ -155,12 +151,12 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
         switch (action) {
           case "augment":
             return prev.map((c) =>
-              c.id === cubeId ? { ...c, size: Math.min(c.size * 1.5, 2.0) } : c
+              c.id === cubeId ? { ...c, id: nextId(), size: Math.min(c.size * 1.5, 2.0) } : c
             );
 
           case "shrink":
             return prev.map((c) =>
-              c.id === cubeId ? { ...c, size: Math.max(c.size * 0.6, 0.15) } : c
+              c.id === cubeId ? { ...c, id: nextId(), size: Math.max(c.size * 0.6, 0.15) } : c
             );
 
           case "duplicate": {
@@ -212,7 +208,12 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
         onContextMenu={(e) => e.preventDefault()}
       >
         <Suspense fallback={null}>
-          <SceneContent cubes={cubes} onCubeContextMenu={handleCubeContextMenu} gravityOn={gravityOn} />
+          <SceneContent
+            cubes={cubes}
+            onCubeContextMenu={handleCubeContextMenu}
+            gravityOn={gravityOn}
+            explodeSignal={explodeSignal}
+          />
         </Suspense>
       </Canvas>
       <CubeContextMenu

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame, ThreeEvent } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { RigidBody, RapierRigidBody } from "@react-three/rapier";
@@ -12,9 +12,11 @@ interface CubeProps {
   rotation?: [number, number, number];
   size?: number;
   onContextMenu?: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
+  gravityOn?: boolean;
+  explodeSignal?: number;
 }
 
-const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu }: CubeProps) => {
+const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, gravityOn = false, explodeSignal = 0 }: CubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
   const [isDragging, setIsDragging] = useState(false);
   const dragPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
@@ -29,6 +31,26 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu }:
     zPhase: Math.random() * Math.PI * 2,
     rotSpeed: 0.05 + Math.random() * 0.08,
   });
+
+  const lastExplodeSignal = useRef(explodeSignal);
+
+  useEffect(() => {
+    if (explodeSignal > lastExplodeSignal.current && rigidBodyRef.current) {
+      lastExplodeSignal.current = explodeSignal;
+      const pos = rigidBodyRef.current.translation();
+      const dir = new THREE.Vector3(pos.x, pos.y, pos.z).normalize();
+      if (dir.length() < 0.1) dir.set(Math.random() - 0.5, Math.random() - 0.5, 0).normalize();
+      const strength = 3 + Math.random() * 2;
+      rigidBodyRef.current.applyImpulse(
+        { x: dir.x * strength, y: dir.y * strength, z: dir.z * strength * 0.3 },
+        true
+      );
+      rigidBodyRef.current.applyTorqueImpulse(
+        { x: (Math.random() - 0.5) * 0.5, y: (Math.random() - 0.5) * 0.5, z: (Math.random() - 0.5) * 0.5 },
+        true
+      );
+    }
+  }, [explodeSignal]);
 
   useFrame((state) => {
     if (!rigidBodyRef.current) return;
@@ -94,6 +116,10 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu }:
       },
       true
     );
+
+    if (gravityOn) {
+      rigidBodyRef.current.applyImpulse({ x: 0, y: -0.008, z: 0 }, true);
+    }
 
     const mouseVec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
     mouseVec.unproject(state.camera);
