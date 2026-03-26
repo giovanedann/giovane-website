@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 const FloatingCubesScene = dynamic(
   () =>
@@ -13,16 +13,15 @@ const FloatingCubesScene = dynamic(
   { ssr: false }
 );
 
+const JOURNEYS = [
+  { label: "I am an engineer", href: "/blog" },
+  { label: "I am a recruiter", href: "/about" },
+  { label: "I am a wanderer", href: "/game" },
+] as const;
+
 export default function Home() {
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
-      <div
-        className="pointer-events-none absolute inset-0 z-10"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%)",
-        }}
-      />
       <FloatingCubesScene />
       <div className="relative z-20 flex flex-col items-center gap-8">
         <motion.h1
@@ -55,33 +54,11 @@ export default function Home() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col gap-4 sm:flex-row"
         >
-          <Link href="/blog">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
-            >
-              I am an engineer
-            </Button>
-          </Link>
-          <Link href="/about">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
-            >
-              I am a recruiter
-            </Button>
-          </Link>
-          <Link href="/game">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full min-w-[200px] border-border bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-accent/50"
-            >
-              I am a wanderer
-            </Button>
-          </Link>
+          {JOURNEYS.map(({ label, href }) => (
+            <Link key={href} href={href}>
+              <ShimmerButton>{label}</ShimmerButton>
+            </Link>
+          ))}
         </motion.div>
       </div>
     </div>

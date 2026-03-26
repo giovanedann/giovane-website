@@ -40,7 +40,7 @@ const SceneContent = () => {
       <directionalLight position={[-6, 2, -3]} intensity={0.6} color="#8090ff" />
       <directionalLight position={[4, -3, -4]} intensity={0.4} color="#9070dd" />
       <pointLight position={[0, 3, 6]} intensity={0.5} />
-      <fog attach="fog" args={["#1a1a1a", 12, 22]} />
+      <fog attach="fog" args={["#0a0a0a", 12, 22]} />
 
       <Physics gravity={[0, 0, 0]} timeStep="vary">
         {cubes.map((cube, i) => (
