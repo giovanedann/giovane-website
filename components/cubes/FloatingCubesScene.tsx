@@ -6,7 +6,7 @@ import { Physics } from "@react-three/rapier";
 import { TechCube } from "./TechCube";
 import { GridFloor } from "./GridFloor";
 
-const CUBE_COUNT = 35;
+const CUBE_COUNT = 30;
 
 interface CubeData {
   position: [number, number, number];
@@ -16,20 +16,20 @@ interface CubeData {
 
 const generateCubes = (count: number): CubeData[] => {
   return Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2;
-    const radius = 2.5 + Math.random() * 5;
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+    const radius = 2 + Math.random() * 4.5;
     return {
       position: [
-        Math.cos(angle) * radius + (Math.random() - 0.5) * 3,
-        (Math.random() - 0.5) * 6,
-        -3 + Math.random() * 4,
+        Math.cos(angle) * radius,
+        (Math.random() - 0.5) * 5,
+        -2 + Math.random() * 2,
       ] as [number, number, number],
       rotation: [
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
       ] as [number, number, number],
-      size: 0.35 + Math.random() * 0.45,
+      size: 0.3 + Math.random() * 0.35,
     };
   });
 };
@@ -39,10 +39,11 @@ const SceneContent = () => {
 
   return (
     <>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={0.8} />
-      <directionalLight position={[-5, -5, 5]} intensity={0.3} color="#4a9eff" />
-      <pointLight position={[0, 0, 8]} intensity={0.4} color="#7c3aed" />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[8, 8, 5]} intensity={1.0} color="#ffffff" />
+      <directionalLight position={[-5, 3, 3]} intensity={0.3} color="#8888ff" />
+      <pointLight position={[0, 0, 6]} intensity={0.3} />
+      <fog attach="fog" args={["#000000", 10, 25]} />
 
       <GridFloor />
 
@@ -63,7 +64,7 @@ const SceneContent = () => {
 const FloatingCubesScene = () => {
   return (
     <Canvas
-      camera={{ position: [0, 1, 12], fov: 50 }}
+      camera={{ position: [0, 0.5, 10], fov: 55 }}
       gl={{ antialias: true, alpha: true, powerPreference: "default" }}
       dpr={[1, 1.5]}
       style={{

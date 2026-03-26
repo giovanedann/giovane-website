@@ -48,17 +48,17 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
 
     const t = state.clock.elapsedTime;
     const s = floatSeed.current;
-    const force = 0.012;
+    const force = 0.008;
     rigidBodyRef.current.applyImpulse(
       {
         x: Math.sin(t * s.xFreq + s.xPhase) * force,
         y: Math.cos(t * s.yFreq + s.yPhase) * force,
-        z: Math.sin(t * s.zFreq + s.zPhase) * force * 0.5,
+        z: Math.sin(t * s.zFreq + s.zPhase) * force * 0.3,
       },
       true
     );
 
-    const torque = 0.002 * s.rotSpeed;
+    const torque = 0.0015 * s.rotSpeed;
     rigidBodyRef.current.applyTorqueImpulse(
       {
         x: Math.sin(t * 0.5 + s.xPhase) * torque,
@@ -69,17 +69,21 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
     );
 
     const pos = rigidBodyRef.current.translation();
-    const maxDist = 12;
-    if (Math.abs(pos.x) > maxDist || Math.abs(pos.y) > maxDist || Math.abs(pos.z) > maxDist) {
-      rigidBodyRef.current.setTranslation(
-        {
-          x: THREE.MathUtils.clamp(pos.x, -maxDist, maxDist),
-          y: THREE.MathUtils.clamp(pos.y, -maxDist, maxDist),
-          z: THREE.MathUtils.clamp(pos.z, -maxDist, maxDist),
-        },
+    const boundsX = 7;
+    const boundsY = 5;
+    const boundsZ = 4;
+    if (Math.abs(pos.x) > boundsX || Math.abs(pos.y) > boundsY || Math.abs(pos.z) > boundsZ) {
+      const clamped = {
+        x: THREE.MathUtils.clamp(pos.x, -boundsX, boundsX),
+        y: THREE.MathUtils.clamp(pos.y, -boundsY, boundsY),
+        z: THREE.MathUtils.clamp(pos.z, -boundsZ, boundsZ),
+      };
+      rigidBodyRef.current.setTranslation(clamped, true);
+      const vel = rigidBodyRef.current.linvel();
+      rigidBodyRef.current.setLinvel(
+        { x: vel.x * -0.5, y: vel.y * -0.5, z: vel.z * -0.5 },
         true
       );
-      rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
     }
   });
 
@@ -87,6 +91,7 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
     e.stopPropagation();
     (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
     setIsDragging(true);
+    document.body.style.cursor = "grabbing";
 
     if (rigidBodyRef.current) {
       rigidBodyRef.current.setBodyType(2, true);
@@ -108,14 +113,15 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
     setIsDragging(false);
+    document.body.style.cursor = "";
 
     if (rigidBodyRef.current) {
       rigidBodyRef.current.setBodyType(0, true);
 
       const throwDirection = new THREE.Vector3(
-        (Math.random() - 0.5) * 3,
-        (Math.random() - 0.5) * 3,
-        (Math.random() - 0.5) * 2
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 1,
       );
       rigidBodyRef.current.applyImpulse(
         { x: throwDirection.x, y: throwDirection.y, z: throwDirection.z },
@@ -129,11 +135,11 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       ref={rigidBodyRef}
       position={position}
       rotation={rotation}
-      linearDamping={1.5}
-      angularDamping={1.0}
+      linearDamping={2.0}
+      angularDamping={1.5}
       gravityScale={0}
       colliders="cuboid"
-      restitution={0.7}
+      restitution={0.5}
       friction={0.2}
     >
       <RoundedBox
@@ -142,9 +148,13 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
         smoothness={4}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
-        onPointerOver={() => setIsHovered(true)}
+        onPointerOver={() => {
+          setIsHovered(true);
+          document.body.style.cursor = "grab";
+        }}
         onPointerOut={() => {
           setIsHovered(false);
+          if (!isDragging) document.body.style.cursor = "";
           if (isDragging) {
             setIsDragging(false);
             if (rigidBodyRef.current) {
@@ -154,11 +164,11 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
         }}
       >
         <meshStandardMaterial
-          color={isHovered ? "#6a6a7a" : "#3a3a44"}
-          metalness={0.5}
-          roughness={0.3}
+          color={isHovered ? "#505058" : "#38383f"}
+          metalness={0.4}
+          roughness={0.35}
           emissive={isHovered ? "#ffffff" : "#000000"}
-          emissiveIntensity={isHovered ? 0.1 : 0}
+          emissiveIntensity={isHovered ? 0.04 : 0}
         />
       </RoundedBox>
     </RigidBody>
