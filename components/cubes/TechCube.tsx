@@ -23,6 +23,16 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
   const dragOffset = useRef(new THREE.Vector3());
   const texture = useCanvasTexture(name, color);
 
+  const floatSeed = useRef({
+    xFreq: 0.3 + Math.random() * 0.4,
+    yFreq: 0.2 + Math.random() * 0.3,
+    zFreq: 0.1 + Math.random() * 0.2,
+    xPhase: Math.random() * Math.PI * 2,
+    yPhase: Math.random() * Math.PI * 2,
+    zPhase: Math.random() * Math.PI * 2,
+    rotSpeed: 0.1 + Math.random() * 0.2,
+  });
+
   useFrame((state) => {
     if (!rigidBodyRef.current) return;
 
@@ -37,7 +47,30 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
       );
       rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
       rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      return;
     }
+
+    const t = state.clock.elapsedTime;
+    const s = floatSeed.current;
+    const force = 0.015;
+    rigidBodyRef.current.applyImpulse(
+      {
+        x: Math.sin(t * s.xFreq + s.xPhase) * force,
+        y: Math.cos(t * s.yFreq + s.yPhase) * force,
+        z: Math.sin(t * s.zFreq + s.zPhase) * force * 0.5,
+      },
+      true
+    );
+
+    const torque = 0.003 * s.rotSpeed;
+    rigidBodyRef.current.applyTorqueImpulse(
+      {
+        x: Math.sin(t * 0.5 + s.xPhase) * torque,
+        y: Math.cos(t * 0.3 + s.yPhase) * torque,
+        z: Math.sin(t * 0.4 + s.zPhase) * torque,
+      },
+      true
+    );
 
     const pos = rigidBodyRef.current.translation();
     const maxDist = 12;
@@ -127,12 +160,11 @@ const TechCube = ({ name, color, position, rotation = [0, 0, 0] }: TechCubeProps
       >
         <meshStandardMaterial
           map={texture}
-          color={isHovered ? new THREE.Color(color).multiplyScalar(0.4).add(new THREE.Color("#1a1a2e")) : "#1a1a2e"}
-          metalness={0.3}
-          roughness={0.2}
+          color={isHovered ? color : "#ffffff"}
+          metalness={0.2}
+          roughness={0.3}
           transparent
-          opacity={isHovered ? 0.95 : 0.8}
-          side={THREE.FrontSide}
+          opacity={isHovered ? 0.95 : 0.85}
         />
       </RoundedBox>
     </RigidBody>
