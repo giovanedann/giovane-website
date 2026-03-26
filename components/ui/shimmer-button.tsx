@@ -21,12 +21,12 @@ const ShimmerButton = ({ children, onClick }: ShimmerButtonProps) => {
       style={{ perspective: 800, transformStyle: "preserve-3d" }}
       className="group relative min-w-[260px] cursor-pointer overflow-hidden rounded-xl px-8 py-4 text-sm font-medium text-foreground"
     >
-      <span className="absolute inset-[-2px] rounded-xl" style={{ padding: "2px" }}>
+      <span className="absolute inset-[-1px] rounded-xl overflow-hidden">
         <span
-          className="absolute inset-[-200%] animate-[shimmer_3s_linear_infinite]"
+          className="absolute inset-[-200%] animate-[shimmer_4s_linear_infinite]"
           style={{
             background:
-              "conic-gradient(from 0deg, transparent 0%, #555 10%, transparent 20%, transparent 50%, #555 60%, transparent 70%)",
+              "conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.25) 5%, transparent 10%, transparent 100%)",
           }}
         />
       </span>
