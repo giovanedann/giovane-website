@@ -52,7 +52,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col gap-4 sm:flex-row"
+          className="flex flex-col gap-4"
         >
           {JOURNEYS.map(({ label, href }) => (
             <Link key={href} href={href}>
