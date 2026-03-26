@@ -187,7 +187,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
         }}
       >
         <meshStandardMaterial
-          color="#555560"
+          color="#222222"
           metalness={0.85}
           roughness={0.15}
         />
