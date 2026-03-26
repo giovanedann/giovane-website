@@ -6,16 +6,15 @@ import { RoundedBox } from "@react-three/drei";
 import { RigidBody, RapierRigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 
-interface TechCubeProps {
+interface CubeProps {
   position: [number, number, number];
   rotation?: [number, number, number];
   size?: number;
 }
 
-const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps) => {
+const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const dragPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
   const dragOffset = useRef(new THREE.Vector3());
 
@@ -26,7 +25,7 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
     xPhase: Math.random() * Math.PI * 2,
     yPhase: Math.random() * Math.PI * 2,
     zPhase: Math.random() * Math.PI * 2,
-    rotSpeed: 0.1 + Math.random() * 0.2,
+    rotSpeed: 0.05 + Math.random() * 0.08,
   });
 
   useFrame((state) => {
@@ -46,6 +45,19 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       return;
     }
 
+    const angVel = rigidBodyRef.current.angvel();
+    const maxAngVel = 0.5;
+    if (Math.abs(angVel.x) > maxAngVel || Math.abs(angVel.y) > maxAngVel || Math.abs(angVel.z) > maxAngVel) {
+      rigidBodyRef.current.setAngvel(
+        {
+          x: THREE.MathUtils.clamp(angVel.x, -maxAngVel, maxAngVel),
+          y: THREE.MathUtils.clamp(angVel.y, -maxAngVel, maxAngVel),
+          z: THREE.MathUtils.clamp(angVel.z, -maxAngVel, maxAngVel),
+        },
+        true
+      );
+    }
+
     const t = state.clock.elapsedTime;
     const s = floatSeed.current;
     const force = 0.003;
@@ -58,12 +70,12 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       true
     );
 
-    const torque = 0.0006 * s.rotSpeed;
+    const torque = 0.0003 * s.rotSpeed;
     rigidBodyRef.current.applyTorqueImpulse(
       {
-        x: Math.sin(t * 0.5 + s.xPhase) * torque,
-        y: Math.cos(t * 0.3 + s.yPhase) * torque,
-        z: Math.sin(t * 0.4 + s.zPhase) * torque,
+        x: Math.sin(t * 0.3 + s.xPhase) * torque,
+        y: Math.cos(t * 0.2 + s.yPhase) * torque,
+        z: Math.sin(t * 0.25 + s.zPhase) * torque,
       },
       true
     );
@@ -136,7 +148,7 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
       position={position}
       rotation={rotation}
       linearDamping={3.0}
-      angularDamping={2.5}
+      angularDamping={4.0}
       gravityScale={0}
       colliders="cuboid"
       restitution={0.5}
@@ -149,11 +161,9 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerOver={() => {
-          setIsHovered(true);
           document.body.style.cursor = "grab";
         }}
         onPointerOut={() => {
-          setIsHovered(false);
           if (!isDragging) document.body.style.cursor = "";
           if (isDragging) {
             setIsDragging(false);
@@ -164,15 +174,13 @@ const TechCube = ({ position, rotation = [0, 0, 0], size = 0.6 }: TechCubeProps)
         }}
       >
         <meshStandardMaterial
-          color={isHovered ? "#555560" : "#404048"}
+          color="#404048"
           metalness={0.85}
           roughness={0.15}
-          emissive={isHovered ? "#ffffff" : "#000000"}
-          emissiveIntensity={isHovered ? 0.03 : 0}
         />
       </RoundedBox>
     </RigidBody>
   );
 };
 
-export { TechCube };
+export { Cube };

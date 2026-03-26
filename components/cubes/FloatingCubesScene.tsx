@@ -3,7 +3,7 @@
 import { useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import { TechCube } from "./TechCube";
+import { Cube } from "./Cube";
 import { GridFloor } from "./GridFloor";
 
 const CUBE_COUNT = 30;
@@ -50,7 +50,7 @@ const SceneContent = () => {
 
       <Physics gravity={[0, 0, 0]} timeStep="vary">
         {cubes.map((cube, i) => (
-          <TechCube
+          <Cube
             key={i}
             position={cube.position}
             rotation={cube.rotation}
