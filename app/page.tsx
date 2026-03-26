@@ -35,8 +35,8 @@ export default function Home() {
         setTimeout(() => {
           setCubeAction("reset");
           setTimeout(() => setCubeAction(null), 100);
-          setSceneVisible(true);
-        }, 400);
+          setTimeout(() => setSceneVisible(true), 600);
+        }, 500);
       } else if (e.code === "KeyG") {
         setCubeAction("gravity");
         setTimeout(() => setCubeAction(null), 100);
@@ -50,7 +50,7 @@ export default function Home() {
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
       <motion.div
         animate={{ opacity: sceneVisible ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: sceneVisible ? 0.8 : 0.4 }}
         className="absolute inset-0"
       >
         <FloatingCubesScene keyboardAction={cubeAction} />
