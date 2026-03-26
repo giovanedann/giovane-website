@@ -46,7 +46,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
     }
 
     const angVel = rigidBodyRef.current.angvel();
-    const maxAngVel = 0.5;
+    const maxAngVel = 0.3;
     if (Math.abs(angVel.x) > maxAngVel || Math.abs(angVel.y) > maxAngVel || Math.abs(angVel.z) > maxAngVel) {
       rigidBodyRef.current.setAngvel(
         {
@@ -58,9 +58,22 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
       );
     }
 
+    const linVel = rigidBodyRef.current.linvel();
+    const maxLinVel = 1.0;
+    if (Math.abs(linVel.x) > maxLinVel || Math.abs(linVel.y) > maxLinVel || Math.abs(linVel.z) > maxLinVel) {
+      rigidBodyRef.current.setLinvel(
+        {
+          x: THREE.MathUtils.clamp(linVel.x, -maxLinVel, maxLinVel),
+          y: THREE.MathUtils.clamp(linVel.y, -maxLinVel, maxLinVel),
+          z: THREE.MathUtils.clamp(linVel.z, -maxLinVel, maxLinVel),
+        },
+        true
+      );
+    }
+
     const t = state.clock.elapsedTime;
     const s = floatSeed.current;
-    const force = 0.003;
+    const force = 0.002;
     rigidBodyRef.current.applyImpulse(
       {
         x: Math.sin(t * s.xFreq + s.xPhase) * force,
@@ -174,7 +187,7 @@ const Cube = ({ position, rotation = [0, 0, 0], size = 0.6 }: CubeProps) => {
         }}
       >
         <meshStandardMaterial
-          color="#404048"
+          color="#252528"
           metalness={0.85}
           roughness={0.15}
         />

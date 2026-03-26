@@ -13,42 +13,23 @@ interface CubeData {
 
 const generateCubes = (): CubeData[] => {
   const cubes: CubeData[] = [];
+  const rot = () => [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2] as [number, number, number];
 
-  for (let i = 0; i < 30; i++) {
-    const angle = (i / 30) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+  for (let i = 0; i < 25; i++) {
+    const angle = (i / 25) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
     const radius = 2.5 + Math.random() * 4;
     cubes.push({
-      position: [
-        Math.cos(angle) * radius,
-        (Math.random() - 0.5) * 5,
-        -2 + Math.random() * 2,
-      ],
-      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
-      size: 0.3 + Math.random() * 0.3,
+      position: [Math.cos(angle) * radius, (Math.random() - 0.5) * 5, -2 + Math.random() * 2],
+      rotation: rot(),
+      size: 0.5 + Math.random() * 0.4,
     });
   }
 
   for (let i = 0; i < 15; i++) {
     cubes.push({
-      position: [
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
-        -4 + Math.random() * 2,
-      ],
-      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
-      size: 0.15 + Math.random() * 0.2,
-    });
-  }
-
-  for (let i = 0; i < 10; i++) {
-    cubes.push({
-      position: [
-        (Math.random() - 0.5) * 12,
-        (Math.random() - 0.5) * 8,
-        -3 + Math.random() * 1,
-      ],
-      rotation: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2],
-      size: 0.1 + Math.random() * 0.12,
+      position: [(Math.random() - 0.5) * 6, (Math.random() - 0.5) * 5, -4 + Math.random() * 2],
+      rotation: rot(),
+      size: 0.35 + Math.random() * 0.25,
     });
   }
 
