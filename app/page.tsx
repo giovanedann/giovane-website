@@ -2,16 +2,21 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { BackgroundBoxes } from "@/components/aceternity/background-boxes";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
+
+const FloatingCubesScene = dynamic(
+  () =>
+    import("@/components/cubes/FloatingCubesScene").then((mod) => ({
+      default: mod.FloatingCubesScene,
+    })),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
-      <div className="pointer-events-none absolute inset-0 z-20 h-full w-full bg-background [mask-image:radial-gradient(transparent,white)]" />
-
-      <BackgroundBoxes />
-
+      <FloatingCubesScene />
       <div className="relative z-20 flex flex-col items-center gap-8">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -21,7 +26,6 @@ export default function Home() {
         >
           Giovane Saes
         </motion.h1>
-
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -30,7 +34,6 @@ export default function Home() {
         >
           Product & AI Engineer
         </motion.p>
-
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +42,6 @@ export default function Home() {
         >
           Who are <span className="font-bold">you</span>?
         </motion.p>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +57,6 @@ export default function Home() {
               I am an engineer
             </Button>
           </Link>
-
           <Link href="/about">
             <Button
               variant="outline"
@@ -65,7 +66,6 @@ export default function Home() {
               I am a recruiter
             </Button>
           </Link>
-
           <Link href="/game">
             <Button
               variant="outline"
