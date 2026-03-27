@@ -16,6 +16,8 @@ interface CubeProps {
   explodeSignal?: number;
 }
 
+const LEFT_BUTTON = 0;
+
 const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, gravityOn = false, explodeSignal = 0 }: CubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
   const [isDragging, setIsDragging] = useState(false);
@@ -162,7 +164,7 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
   });
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
-    if (e.nativeEvent.button === 2) return;
+    if (e.nativeEvent.button !== LEFT_BUTTON) return;
     e.stopPropagation();
     (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
     setIsDragging(true);
@@ -186,7 +188,7 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
-    if (e.nativeEvent.button === 2) return;
+    if (e.nativeEvent.button !== LEFT_BUTTON) return;
     (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
     setIsDragging(false);
     document.body.style.cursor = "";
@@ -206,9 +208,9 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
     }
   };
 
-  const handleRightClick = (e: ThreeEvent<PointerEvent>) => {
-    if (e.nativeEvent.button !== 2) return;
+  const handleRightClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
+    e.nativeEvent.preventDefault();
 
     const pos = rigidBodyRef.current?.translation();
     if (pos && onContextMenu) {
@@ -239,10 +241,7 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
         radius={0.08}
         smoothness={4}
         onPointerDown={handlePointerDown}
-        onPointerUp={(e) => {
-          handlePointerUp(e);
-          handleRightClick(e);
-        }}
+        onPointerUp={handlePointerUp}
         onPointerOver={() => {
           document.body.style.cursor = "grab";
         }}
@@ -255,7 +254,7 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
             }
           }
         }}
-        onContextMenu={(e) => e.nativeEvent.preventDefault()}
+        onContextMenu={handleRightClick}
       >
         <meshStandardMaterial
           color="#444450"
