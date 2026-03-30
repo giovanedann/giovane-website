@@ -1,0 +1,57 @@
+---
+title: "Understanding Cloudflare Workers"
+short_description: "Ever wondered how Cloudflare Workers have negligible cold start delays? Let's break it down."
+long_description: "A deep dive into the V8 engine, V8 Isolates, and how Cloudflare Workers uses them to run your code globally with near-zero cold starts. If you've ever wondered what happens between your deploy and your response, this is for you."
+date: "2026-03-19"
+tags: ["cloudflare", "serverless", "v8", "workers", "backend", "engineering"]
+topics: ["Cloudflare", "Serverless", "Backend", "Engineering"]
+published: false
+---
+
+> **TL;DR:** TODO
+>
+> **What to expect:**
+>
+> - TODO
+
+## Introduction
+
+If you read [Why I Love Serverless](/blog/why-i-love-serverless) you know 2 things: I love serverless architectures, and the basics of how they work.
+
+I am a huge fan of AWS Lambda, and I love working with it, but, there's a lot of things that can bring a bad experience if you aren't careful: bundle size, cold-starts, isolated containers (memory sharing), local development (that's a real pain) and everything else.
+
+This year, while researching best technologies for building a personal project, I found out about Cloudflare Workers, and I don't think I'll ever go back to Lambdas for building serverless APIs again.
+
+In this post, I'll break it down for you to understand the whys about this decision, and deep dive about why Cloudflare Workers are so cool.
+
+---
+
+## V8 — The Engine Behind Everything
+
+TODO — V8 as compiler (not runtime), the compilation pipeline (Ignition → Sparkplug → Maglev → TurboFan), progressive optimization
+
+## V8 Isolates
+
+TODO — Definition (own heap, GC, compiler state), security model (language-level sandboxing), comparison to containers/VMs
+
+## How Cloudflare Workers Uses Isolates
+
+TODO — One process many isolates, memory footprint (~2-5 MB vs ~30-100 MB), pre-deployed to 300+ PoPs, ~5ms startup
+
+## The Event Loop Advantage
+
+TODO — One isolate handles many concurrent requests via event loop multiplexing, why this works for I/O-bound APIs
+
+## Bundle Size: Why It Doesn't Matter Here
+
+TODO — Lambda's bundle size problem vs Workers' non-issue, reference [serverless post](/blog/why-i-love-serverless) for Lambda execution model
+
+## What Actually Limits You on Workers
+
+TODO — CPU time, memory, subrequest limits — the real constraints
+
+---
+
+## Conclusion
+
+TODO — Tie it together, closing in your style. Farewell!

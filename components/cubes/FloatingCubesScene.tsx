@@ -151,12 +151,12 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
         switch (action) {
           case "augment":
             return prev.map((c) =>
-              c.id === cubeId ? { ...c, id: nextId(), size: Math.min(c.size * 1.5, 2.0) } : c
+              c.id === cubeId ? { ...c, id: nextId(), position: cubeWorldPos, size: Math.min(c.size * 1.5, 2.0) } : c
             );
 
           case "shrink":
             return prev.map((c) =>
-              c.id === cubeId ? { ...c, id: nextId(), size: Math.max(c.size * 0.6, 0.15) } : c
+              c.id === cubeId ? { ...c, id: nextId(), position: cubeWorldPos, size: Math.max(c.size * 0.6, 0.15) } : c
             );
 
           case "duplicate": {
