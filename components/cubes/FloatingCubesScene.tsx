@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect, Suspense } from "react";
+import { useRef, useState, useCallback, useEffect, useLayoutEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import * as THREE from "three";
@@ -23,12 +23,37 @@ const rot = (): [number, number, number] => [
   Math.random() * Math.PI * 2,
 ];
 
-const generateInitialCubes = (): CubeData[] => {
-  return Array.from({ length: 40 }, () => ({
+const CAMERA_FOV = 55;
+const CAMERA_Z = 10;
+const AVG_CUBE_DEPTH = -1.5;
+const CAMERA_DISTANCE = CAMERA_Z - AVG_CUBE_DEPTH;
+const HALF_FOV_RAD = (CAMERA_FOV / 2) * (Math.PI / 180);
+const BASE_CUBE_COUNT = 40;
+const REF_HALF_H = CAMERA_DISTANCE * Math.tan(HALF_FOV_RAD);
+const REF_AREA = REF_HALF_H * (REF_HALF_H * (16 / 9)) * 4;
+const SPAWN_MARGIN = 0.95;
+const MIN_CUBES = 20;
+const MAX_CUBES = 120;
+
+function computeViewportBounds() {
+  const aspect = window.innerWidth / window.innerHeight;
+  const halfH = CAMERA_DISTANCE * Math.tan(HALF_FOV_RAD);
+  const halfW = halfH * aspect;
+  const area = halfW * halfH * 4;
+  const count = Math.round(BASE_CUBE_COUNT * (area / REF_AREA));
+  return {
+    boundsX: halfW * SPAWN_MARGIN,
+    boundsY: halfH * SPAWN_MARGIN,
+    cubeCount: Math.max(MIN_CUBES, Math.min(MAX_CUBES, count)),
+  };
+}
+
+const generateInitialCubes = (boundsX: number, boundsY: number, count: number): CubeData[] => {
+  return Array.from({ length: count }, () => ({
     id: nextId(),
     position: [
-      (Math.random() - 0.5) * 14,
-      (Math.random() - 0.5) * 10,
+      (Math.random() - 0.5) * boundsX * 2,
+      (Math.random() - 0.5) * boundsY * 2,
       -3 + Math.random() * 3,
     ] as [number, number, number],
     rotation: rot(),
@@ -50,6 +75,8 @@ interface SceneContentProps {
   onCubeContextMenu: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
   gravityOn: boolean;
   explodeSignal: number;
+  boundsX: number;
+  boundsY: number;
 }
 
 const MouseLight = () => {
@@ -68,7 +95,7 @@ const MouseLight = () => {
   return <pointLight ref={lightRef} intensity={0.8} distance={6} decay={2} color="#ffffff" />;
 };
 
-const SceneContent = ({ cubes, onCubeContextMenu, gravityOn, explodeSignal }: SceneContentProps) => {
+const SceneContent = ({ cubes, onCubeContextMenu, gravityOn, explodeSignal, boundsX, boundsY }: SceneContentProps) => {
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -90,6 +117,8 @@ const SceneContent = ({ cubes, onCubeContextMenu, gravityOn, explodeSignal }: Sc
             onContextMenu={onCubeContextMenu}
             gravityOn={gravityOn}
             explodeSignal={explodeSignal}
+            boundsX={boundsX}
+            boundsY={boundsY}
           />
         ))}
       </Physics>
@@ -103,11 +132,22 @@ interface FloatingCubesSceneOuterProps {
 
 const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) => {
   const [cubes, setCubes] = useState<CubeData[]>([]);
+  const [bounds, setBounds] = useState({ boundsX: 7, boundsY: 5 });
   const [gravityOn, setGravityOn] = useState(false);
   const [explodeSignal, setExplodeSignal] = useState(0);
 
-  useEffect(() => {
-    setCubes(generateInitialCubes());
+  useLayoutEffect(() => {
+    const vb = computeViewportBounds();
+    setBounds({ boundsX: vb.boundsX, boundsY: vb.boundsY });
+    setCubes(generateInitialCubes(vb.boundsX, vb.boundsY, vb.cubeCount));
+
+    const handleResize = () => {
+      const newBounds = computeViewportBounds();
+      setBounds({ boundsX: newBounds.boundsX, boundsY: newBounds.boundsY });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -117,7 +157,9 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
       setExplodeSignal((prev) => prev + 1);
     } else if (keyboardAction === "reset") {
       setGravityOn(false);
-      setCubes(generateInitialCubes());
+      const vb = computeViewportBounds();
+      setBounds({ boundsX: vb.boundsX, boundsY: vb.boundsY });
+      setCubes(generateInitialCubes(vb.boundsX, vb.boundsY, vb.cubeCount));
     } else if (keyboardAction === "gravity") {
       setGravityOn((prev) => !prev);
     }
@@ -195,7 +237,7 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
   return (
     <>
       <Canvas
-        camera={{ position: [0, 0.5, 10], fov: 55 }}
+        camera={{ position: [0, 0.5, CAMERA_Z], fov: CAMERA_FOV }}
         gl={{ antialias: true, alpha: true, powerPreference: "default" }}
         dpr={[1, 1.5]}
         style={{
@@ -213,6 +255,8 @@ const FloatingCubesScene = ({ keyboardAction }: FloatingCubesSceneOuterProps) =>
             onCubeContextMenu={handleCubeContextMenu}
             gravityOn={gravityOn}
             explodeSignal={explodeSignal}
+            boundsX={bounds.boundsX}
+            boundsY={bounds.boundsY}
           />
         </Suspense>
       </Canvas>

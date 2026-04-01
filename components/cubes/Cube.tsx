@@ -14,11 +14,13 @@ interface CubeProps {
   onContextMenu?: (id: string, screenX: number, screenY: number, worldPos: [number, number, number], size: number) => void;
   gravityOn?: boolean;
   explodeSignal?: number;
+  boundsX?: number;
+  boundsY?: number;
 }
 
 const LEFT_BUTTON = 0;
 
-const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, gravityOn = false, explodeSignal = 0 }: CubeProps) => {
+const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, gravityOn = false, explodeSignal = 0, boundsX = 7, boundsY = 5 }: CubeProps) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null!);
   const [isDragging, setIsDragging] = useState(false);
   const dragPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
@@ -145,8 +147,6 @@ const Cube = ({ id, position, rotation = [0, 0, 0], size = 0.6, onContextMenu, g
     }
 
     const pos = rigidBodyRef.current.translation();
-    const boundsX = 7;
-    const boundsY = 5;
     const boundsZ = 4;
     if (Math.abs(pos.x) > boundsX || Math.abs(pos.y) > boundsY || Math.abs(pos.z) > boundsZ) {
       const clamped = {
