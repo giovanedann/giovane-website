@@ -15,8 +15,11 @@ const experiences = [
       "Architected and led the adoption of **AI-agentic workflows** (Claude Code, Cursor) across the engineering team (5 engineers), **slashing PR cycle time by 55%** and establishing new standards for team productivity and code quality; improved First Time Pass Rate (FTPR) by **mentoring the team on effective prompt engineering and agentic coding tools**",
       "Migrated a **56-page internal platform** from a Next.js monolith to a decoupled monorepo **(Vite + Fastify)**, reducing build time from **35s to 4s** and production bundle from **105MB to 562KB (99.5% smaller)**",
       "Designed the full AWS infrastructure from scratch with **Terraform** (5 composable modules covering EKS, networking, IAM, and CI/CD), enabling **zero-downtime deployments** with automatic rollback — **zero feature regression** during the migration",
+      "Led the migration of a production ERP database **from MongoDB to PostgreSQL with zero regressions**, designing a repository abstraction layer that enabled swapping 17 data layers transparently from NoSQL to SQL, **validated by 5 batches of E2E tests** against a real database, **ensuring the application continued operating seamlessly after a full database paradigm shift**",
+      "Architected a **pnpm monorepo with 4 packages**, **enforcing a single source of truth** for entities, Zod validators, and DTOs across frontend and backend — **eliminating client/server type drift and enabling shared validation logic consumed by both layers**",
+      "Designed multi-environment CI/CD pipelines (GitHub Actions) with **WireGuard VPN tunneling, AWS IAM role assumption via OIDC, ECR image caching, and automated rollback on failure**. Optimized Docker images from **300MB to <100MB** with 3-stage builds, configured Kustomize overlays for 3 environments (local/staging/production) with Pod Disruption Budgets, and enforced quality gates via Lefthook pre-commit, **significantly decreasing CI/CD time and costs**",
     ],
-    tech: ["TypeScript", "React", "NextJS", "TailwindCSS", "ShadCN", "NodeJS", "AWS", "Docker", "Kubernetes (EKS)", "Terraform", "Claude Code"],
+    tech: ["TypeScript", "React", "MongoDB", "PostgreSQL", "NextJS", "TailwindCSS", "ShadCN", "NodeJS", "AWS", "Docker", "Kubernetes (EKS)", "Terraform", "Claude Code"],
   },
   {
     title: "Software Engineer",
